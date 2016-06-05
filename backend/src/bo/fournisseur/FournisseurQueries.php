@@ -1,12 +1,11 @@
 <?php
 
-namespace Client;
+namespace Fournisseur;
 
-use Client\Client as Client;
 use Racine\Bootstrap as Bootstrap;
 use Exception as Exception;
 
-class ClientQueries {
+class FournisseurQueries {
     /*
      *
      */
@@ -71,7 +70,7 @@ class ClientQueries {
    
     public function retrieveAll($offset, $rowCount, $orderBy = "", $sWhere = "") {
         
-                $sql = 'select distinct(id), nom, prenom, adresse, telephone
+                $sql = 'select distinct(id),nom, prenom, adresse, telephone
                     from client c  ' . $sWhere . ' group by c.id ' . $orderBy . ' LIMIT ' . $offset . ', ' . $rowCount.'';
             
         
@@ -83,7 +82,6 @@ class ClientQueries {
         $i = 0;
         foreach ($clients as $key => $value) {
             $arrayContact [$i] [] = $value ['id'];
-//            $arrayContact [$i] [] = $value ['origine'];
             $arrayContact [$i] [] = $value ['prenom'];
             $arrayContact [$i] [] = $value ['nom'];
             $arrayContact [$i] [] = $value ['adresse'];

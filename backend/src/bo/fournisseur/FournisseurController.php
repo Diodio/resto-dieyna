@@ -5,14 +5,15 @@ require_once '../../common/app.php';
 require_once App::AUTOLOAD;         
 $lang='fr';
 
-use Produit\Produit as Produit;
+use Client\Client as Client;
 use Bo\BaseController as BaseController;
 use Bo\BaseAction as BaseAction;
-use Produit\ProduitManager as ProduitManager;
+use Client\ClientManager as ClientManager;
+use tools\Tool as Tool;
 use Exceptions\ConstraintException as ConstraintException;
 use App as App;
                         
-class ProduitController extends BaseController implements BaseAction {
+class FournisseurController extends BaseController implements BaseAction {
 
     
     private $parameters;
@@ -67,24 +68,22 @@ class ProduitController extends BaseController implements BaseAction {
 
     public function doInsert($request) {
         try {
-                $produit = new Produit();
-                $produitManager = new ProduitManager();
-                    $produit->setLibelle($request['libelle']);
-                    $produit->setQuantite($request['quantite']);
-                    $produit->setPrixUnitaire($request['prixUnitaire']);
-                    $produit->setSeuil($request['seuil']);
-                    $produitExist = $produitManager->findProduitsByName($request['libelle']);
-                    var_dump($produitExist);
-                  //  $produitAdded = $produitManager->insert($produit);
-//                    if ($produitAdded->getId() != null) {
-//                        $this->doSuccess($produitAdded->getId(), 'Produit enregistré avec succes');
-//                     
-//                } else {
-//                    throw new Exception('impossible d\'inserer ce produit');
-//                }
+                $client = new Client();
+                    $client->setNom($request['nom']);
+                    $client->setPrenom($request['prenom']);
+                    $client->setAdresse($request['adresse']);
+                    $client->setTelephone($request['telephone']);
+                    $clientManager = new ClientManager();
+                    $clientAdded = $clientManager->insert($client);
+                    if ($clientAdded->getId() != null) {
+                        $this->doSuccess($clientAdded->getId(), $this->parameters['SAVED']);
+                     
+                } else {
+                    throw new Exception('impossible d\'inserer ce client');
+                }
             
         } catch (Exception $e) {
-            throw new Exception('ERREUR SERVEUR');
+            throw new Exception($this->parameters['ERREUR_SERVEUR']);
         }
     }
 
@@ -150,11 +149,11 @@ class ProduitController extends BaseController implements BaseAction {
 
     public function doList($request) {
         try {
-            $produitManager = new ProduitManager();
+            $clientManager = new ClientManager();
             if (isset($request['iDisplayStart']) && isset($request['iDisplayLength'])) {
                 // Begin order from dataTable
                 $sOrder = "";
-                $aColumns = array('libelle', 'quantite', 'prixUnitaire');
+                $aColumns = array('id', 'nom', 'prenom', 'adresse', 'telephone');
                 if (isset($request['iSortCol_0'])) {
                     $sOrder = "ORDER BY  ";
                     for ($i = 0; $i < intval($request['iSortingCols']); $i++) {
@@ -175,20 +174,20 @@ class ProduitController extends BaseController implements BaseAction {
                 if (isset($request['sSearch']) && $request['sSearch'] != "") {
                     $sSearchs = explode(" ", $request['sSearch']);
                     for ($j = 0; $j < count($sSearchs); $j++) {
-                        $sWhere .= " ";
+                        $sWhere .= " AND (";
                         for ($i = 0; $i < count($aColumns); $i++) {
-                            $sWhere .= "(" . $aColumns[$i] . " LIKE '%" . $sSearchs[$j] . "%') OR";
+                            $sWhere .= "(c." . $aColumns[$i] . " LIKE '%" . $sSearchs[$j] . "%') OR";
                             if ($i == count($aColumns) - 1)
                                 $sWhere = substr_replace($sWhere, "", -3);
                         }
-                       // $sWhere = $sWhere .=")";
+                        $sWhere = $sWhere .=")";
                     }
                 }
                 // End filter from dataTable
-                $produits = $produitManager->retrieveAll($request['iDisplayStart'], $request['iDisplayLength'], $sOrder, $sWhere);
-                if ($produits != null) {
-                    $nbProduits = $produitManager->count($sWhere);
-                    $this->doSuccessO($this->dataTableFormat($produits, $request['sEcho'], $nbProduits));
+                $clients = $clientManager->retrieveAll($request['iDisplayStart'], $request['iDisplayLength'], $sOrder, $sWhere);
+                if ($clients != null) {
+                    $nbContact = $clientManager->count($sWhere);
+                    $this->doSuccessO($this->dataTableFormat($clients, $request['sEcho'], $nbContact));
                 } else {
                     $this->doSuccessO($this->dataTableFormat(array(), $request['sEcho'], 0));
                 }
@@ -536,22 +535,29 @@ class ProduitController extends BaseController implements BaseAction {
     }
 
     public function doSearch($request) {
+        $this->logger->log->info('Action view Search Contacts');
+        $this->logger->log->info(json_encode($request));
         try {
-            if (isset($request['term'])) {
-                $produitManager = new ProduitManager ();
+            if (isset($request ['userId']) && isset($request['term'])) {
+                $userId = $request['userId'];
+                $contactManager = new ContactManager ();
                 $term = trim(strip_tags($request['term']));
-                $produits = $produitManager->findAllProduits($term);
-                if ($produits != null)
-                    $this->doSuccessO($this->listObjectToArray($produits));
+                $this->logger->log->trace($userId);
+                $contacts = $contactManager->findAllRecipients($userId, $term);
+                if ($contacts != null)
+                    $this->doSuccessO($this->listObjectToArray($contacts));
                 else
                     echo json_encode(array());
             }
             else {
+                $this->logger->log->trace('View : Params not enough');
                 throw new ConstraintException($this->parameters['PARAM_NOT_ENOUGH']);
             }
         } catch (ConstraintException $e) {
+            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
             throw $e;
         } catch (Exception $e) {
+            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
             throw new Exception($this->parameters['ERREUR_SERVEUR']);
         }
     }
@@ -605,4 +611,4 @@ class ProduitController extends BaseController implements BaseAction {
 
 }
 
-        $oProduitController = new ProduitController($_REQUEST);
+        $oFournisseurController = new FournisseurController($_REQUEST);

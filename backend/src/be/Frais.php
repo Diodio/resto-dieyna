@@ -1,25 +1,35 @@
 <?php
 
-namespace Rubrique;
+namespace Frais;
 
 /** @Entity @HasLifecycleCallbacks 
- * @Table(name="rubrique") * */
-class Rubrique {
+ * @Table(name="frais") * */
+class Frais {
 
     /** @Id
      * @Column(type="integer"), @GeneratedValue
      */
     protected $id;
     
-    /**
-     * @Column(type="string", length=60, nullable=false, unique=true)
-     * */
-    protected $code;
+    
+    /** @Column(type="datetime", nullable=false) */
+    protected $date;
     
     /**
-     * @Column(type="string", length=60, nullable=false)
+     * @Column(type="string", length=160, nullable=false)
      * */
     protected $libelle;
+    
+    /**
+     * @Column(type="decimal", scale=2, precision=10,nullable=false)
+     * */
+    protected $prixUnitaire;
+    
+    /**
+     * @Column(type="decimal", scale=2, precision=10, nullable=false)
+     * */
+    protected $quantite;
+    
     /**
      * @Column(type="integer", options={"default":0}) 
      **/
@@ -38,12 +48,20 @@ class Rubrique {
         return $this->id;
     }
 
-    function getCode() {
-        return $this->code;
+    function getDate() {
+        return $this->date;
     }
 
     function getLibelle() {
         return $this->libelle;
+    }
+
+    function getPrixUnitaire() {
+        return $this->prixUnitaire;
+    }
+
+    function getQuantite() {
+        return $this->quantite;
     }
 
     function getStatus() {
@@ -66,12 +84,20 @@ class Rubrique {
         $this->id = $id;
     }
 
-    function setCode($code) {
-        $this->code = $code;
+    function setDate($date) {
+        $this->date = $date;
     }
 
     function setLibelle($libelle) {
         $this->libelle = $libelle;
+    }
+
+    function setPrixUnitaire($prixUnitaire) {
+        $this->prixUnitaire = $prixUnitaire;
+    }
+
+    function setQuantite($quantite) {
+        $this->quantite = $quantite;
     }
 
     function setStatus($status) {

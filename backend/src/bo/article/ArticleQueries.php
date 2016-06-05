@@ -1,11 +1,11 @@
 <?php
 
-namespace Produit;
+namespace Article;
 
 use Racine\Bootstrap as Bootstrap;
 use Exception as Exception;
 
-class ProduitQueries {
+class ArticleQueries {
     /*
      *
      */
@@ -19,24 +19,24 @@ class ProduitQueries {
 
     public function __construct() {
         $this->entityManager = Bootstrap::$entityManager;
-        $this->classString = 'Produit\Produit';
+        $this->classString = 'Article\Article';
     }
 
    
-    public function insert($produit) {
-        if ($produit != null) {
-            Bootstrap::$entityManager->persist($produit);
+    public function insert($article) {
+        if ($article != null) {
+            Bootstrap::$entityManager->persist($article);
             Bootstrap::$entityManager->flush();
-            return $produit;
+            return $article;
         }
     }
 
-    public function delete($produitId) {
-        $produit = $this->findAllById($produitId);
-        if ($produit != null) {
-            Bootstrap::$entityManager->remove($produit);
+    public function delete($articleId) {
+        $article = $this->findAllById($articleId);
+        if ($article != null) {
+            Bootstrap::$entityManager->remove($article);
             Bootstrap::$entityManager->flush();
-            return $produit;
+            return $article;
         } else {
             return null;
         }
@@ -53,8 +53,8 @@ class ProduitQueries {
     public function retrieveAll($offset, $rowCount, $orderBy = "", $sWhere = "") {
         if($sWhere !== "")
             $sWhere = " where " . $sWhere;
-            $sql = 'select distinct(id), libelle, quantite, prixUnitaire
-                    from produit' . $sWhere . ' group by id ' . $orderBy . ' LIMIT ' . $offset . ', ' . $rowCount.'';
+            $sql = 'select distinct(id), libelle, prixUnitaire
+                    from article' . $sWhere . ' group by id ' . $orderBy . ' LIMIT ' . $offset . ', ' . $rowCount.'';
             
         $sql = str_replace("`", "", $sql);
         $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
@@ -65,7 +65,6 @@ class ProduitQueries {
         foreach ($products as $key => $value) {
             $arrayContact [$i] [] = $value ['id'];
             $arrayContact [$i] [] = $value ['libelle'];
-            $arrayContact [$i] [] = $value ['quantite'];
             $arrayContact [$i] [] = $value ['prixUnitaire'];
             $i++;
         }
@@ -165,15 +164,4 @@ class ProduitQueries {
             return null;
     }
    
-    
-     public function findProduitsByName($name) {
-        $sql = 'SELECT id  FROM produit where ( id = "'. $name .'")';
-        $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
-        $stmt->execute();
-        $produit = $stmt->fetchAll();
-        if ($produit != null)
-            return $produit;
-        else
-            return null;
-    }
 }

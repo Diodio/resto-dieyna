@@ -1,29 +1,26 @@
 <?php
 
-namespace Rubrique;
+namespace Vente;
 
 /** @Entity @HasLifecycleCallbacks 
- * @Table(name="rubrique") * */
-class Rubrique {
+ * @Table(name="vente") * */
+class Vente {
 
     /** @Id
      * @Column(type="integer"), @GeneratedValue
      */
     protected $id;
     
-    /**
+     /**
      * @Column(type="string", length=60, nullable=false, unique=true)
      * */
-    protected $code;
+    protected $numero;
     
-    /**
-     * @Column(type="string", length=60, nullable=false)
-     * */
-    protected $libelle;
-    /**
-     * @Column(type="integer", options={"default":0}) 
-     **/
-    protected $status;
+   /** @Column(type="datetime", nullable=true) */
+    public $date;
+    
+   /** @Column(type="decimal", scale=2, precision=10, nullable=false) */
+    public $montant;
     
     /** @Column(type="datetime", nullable=true) */
     protected $createdDate;
@@ -34,20 +31,23 @@ class Rubrique {
     /** @Column(type="datetime", nullable=true) */
     protected $deletedDate;
     
+    /** @OneToMany(targetEntity="Rubrique\Article", mappedBy="article") */
+    public $article;
+    
     function getId() {
         return $this->id;
     }
 
-    function getCode() {
-        return $this->code;
+    function getNumero() {
+        return $this->numero;
     }
 
-    function getLibelle() {
-        return $this->libelle;
+    function getDate() {
+        return $this->date;
     }
 
-    function getStatus() {
-        return $this->status;
+    function getMontant() {
+        return $this->montant;
     }
 
     function getCreatedDate() {
@@ -62,20 +62,24 @@ class Rubrique {
         return $this->deletedDate;
     }
 
+    function getArticle() {
+        return $this->article;
+    }
+
     function setId($id) {
         $this->id = $id;
     }
 
-    function setCode($code) {
-        $this->code = $code;
+    function setNumero($numero) {
+        $this->numero = $numero;
     }
 
-    function setLibelle($libelle) {
-        $this->libelle = $libelle;
+    function setDate($date) {
+        $this->date = $date;
     }
 
-    function setStatus($status) {
-        $this->status = $status;
+    function setMontant($montant) {
+        $this->montant = $montant;
     }
 
     function setCreatedDate($createdDate) {
@@ -90,7 +94,11 @@ class Rubrique {
         $this->deletedDate = $deletedDate;
     }
 
-        /** @PrePersist */
+    function setArticle($article) {
+        $this->article = $article;
+    }
+
+            /** @PrePersist */
     public function doPrePersist() {
     	$this->status = 0;
     	$this->createdDate = new \DateTime("now");

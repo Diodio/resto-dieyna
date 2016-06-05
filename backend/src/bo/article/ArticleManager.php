@@ -1,8 +1,8 @@
 <?php
 
-namespace Produit;
+namespace Article;
 require_once '../../common/app.php';
-use Produit\ProduitQueries as ProduitQueries;
+use Article\ArticleQueries as ArticleQueries;
 /**
  * Cette classe communique avec la classe ContactQueries
  * Elle sert d'intermédiaire entre le controleur ContactControleur et les queries 
@@ -10,23 +10,23 @@ use Produit\ProduitQueries as ProduitQueries;
  */
 
 
-class ProduitManager {
+class ArticleManager {
 
-    private $produitQuery;
+    private $articleQuery;
    
 
     public function __construct() {
-        $this->produitQuery = new ProduitQueries();
+        $this->articleQuery = new ArticleQueries();
     }
     
-    public function insert($produit) {
-        $this->produitQuery->insert($produit);
-    	return $produit;
+    public function insert($article) {
+        $this->articleQuery->insert($article);
+    	return $article;
     }
     
     public function listAll() {
-    	$this->produitQuery=$this->produitQuery->findAll();
-    	return $this->produitQuery;
+    	$this->articleQuery=$this->articleQuery->findAll();
+    	return $this->articleQuery;
     }
 	//TODO:test pour savoir si customer donn� est null ou pas?
     /**
@@ -41,47 +41,44 @@ class ProduitManager {
 
  
     public function delete($clientId) {
-        return $this->produitQuery->delete($clientId);
+        return $this->articleQuery->delete($clientId);
     }
 
    
     public function view($clientId) {
-        $client = $this->produitQuery->view($clientId);
+        $client = $this->articleQuery->view($clientId);
         return $client;
     }
     
     
     public function findTypeProduitById($typeproduitId) {
-        return $this->produitQuery->findTypeProduitById($typeproduitId);
+        return $this->articleQuery->findTypeProduitById($typeproduitId);
     }
 
     
     public function retrieveAll($offset, $rowCount, $sOrder = "", $sWhere = "") {
-        return $this->produitQuery->retrieveAll($offset, $rowCount, $sOrder, $sWhere);
+        return $this->articleQuery->retrieveAll($offset, $rowCount, $sOrder, $sWhere);
     }
 public function retrieveTypes()
     {
-        return $this->produitQuery->retrieveTypes();
+        return $this->articleQuery->retrieveTypes();
     }
    
     public function count($where="") {
-        return $this->produitQuery->count($where);
+        return $this->articleQuery->count($where);
     }
     
      public function retrieveAllTypeProduits($offset, $rowCount, $sOrder = "", $sWhere = "") {
-        return $this->produitQuery->retrieveAllTypeProduits($offset, $rowCount, $sOrder, $sWhere);
+        return $this->articleQuery->retrieveAllTypeProduits($offset, $rowCount, $sOrder, $sWhere);
     }
 
    
     public function countAllTypeProduits($where="") {
-        return $this->produitQuery->countAllTypeProduits($where);
+        return $this->articleQuery->countAllTypeProduits($where);
     }
     public function findAllProduits($term){
-            return $this->produitQuery->findAllProduits($term);
+            return $this->articleQuery->findAllProduits($term);
     }
 
-    public function findProduitsByName($name){
-        return $this->produitQuery->findProduitsByName($name);
-    }
-
+    
 }

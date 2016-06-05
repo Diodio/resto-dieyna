@@ -1,25 +1,44 @@
 <?php
 
-namespace Rubrique;
+namespace Employe;
 
 /** @Entity @HasLifecycleCallbacks 
- * @Table(name="rubrique") * */
-class Rubrique {
+ * @Table(name="employe") * */
+class Employe {
 
     /** @Id
      * @Column(type="integer"), @GeneratedValue
      */
     protected $id;
     
-    /**
-     * @Column(type="string", length=60, nullable=false, unique=true)
-     * */
-    protected $code;
     
     /**
-     * @Column(type="string", length=60, nullable=false)
+     * @Column(type="string", length=160, nullable=false)
      * */
-    protected $libelle;
+    protected $reference;
+    
+    /**
+     * @Column(type="string", length=160, nullable=false)
+     * */
+    protected $nom;
+    
+    /**
+     * @Column(type="string", length=160, nullable=false)
+     * */
+    protected $adresse;
+    
+    /**
+     * @Column(type="string", length=160, nullable=false)
+     * */
+    protected $contact;
+    
+    /**
+     * @Column(type="string", length=160, nullable=false)
+     * */
+    protected $salaire;
+    
+    
+    
     /**
      * @Column(type="integer", options={"default":0}) 
      **/
@@ -38,12 +57,24 @@ class Rubrique {
         return $this->id;
     }
 
-    function getCode() {
-        return $this->code;
+    function getReference() {
+        return $this->reference;
     }
 
-    function getLibelle() {
-        return $this->libelle;
+    function getNom() {
+        return $this->nom;
+    }
+
+    function getAdresse() {
+        return $this->adresse;
+    }
+
+    function getContact() {
+        return $this->contact;
+    }
+
+    function getSalaire() {
+        return $this->salaire;
     }
 
     function getStatus() {
@@ -66,12 +97,24 @@ class Rubrique {
         $this->id = $id;
     }
 
-    function setCode($code) {
-        $this->code = $code;
+    function setReference($reference) {
+        $this->reference = $reference;
     }
 
-    function setLibelle($libelle) {
-        $this->libelle = $libelle;
+    function setNom($nom) {
+        $this->nom = $nom;
+    }
+
+    function setAdresse($adresse) {
+        $this->adresse = $adresse;
+    }
+
+    function setContact($contact) {
+        $this->contact = $contact;
+    }
+
+    function setSalaire($salaire) {
+        $this->salaire = $salaire;
     }
 
     function setStatus($status) {
@@ -90,7 +133,7 @@ class Rubrique {
         $this->deletedDate = $deletedDate;
     }
 
-        /** @PrePersist */
+            /** @PrePersist */
     public function doPrePersist() {
     	$this->status = 0;
     	$this->createdDate = new \DateTime("now");

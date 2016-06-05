@@ -1,9 +1,8 @@
 <?php
 
-namespace Client;
+namespace Fournisseur;
 require_once '../../common/app.php';
-use Client\Client as Client;
-use Client\ClientQueries as ClientQueries;
+use Fournisseur\FournisseurQueries as FournisseurQueries;
 /**
  * Cette classe communique avec la classe ContactQueries
  * Elle sert d'intermédiaire entre le controleur ContactControleur et les queries 
@@ -11,23 +10,23 @@ use Client\ClientQueries as ClientQueries;
  */
 
 
-class ClientManager {
+class FournisseurManager {
 
-    private $clientQuery;
+    private $fournisseurQuery;
    
 
     public function __construct() {
-        $this->clientQuery = new ClientQueries();
+        $this->fournisseurQuery = new FournisseurQueries();
     }
     
-    public function insert($client) {
-        $this->clientQuery->insert($client);
-    	return $client;
+    public function insert($fournisseur) {
+        $this->fournisseurQuery->insert($fournisseur);
+    	return $fournisseur;
     }
     
     public function listAll() {
-    	$this->clientQuery=$this->clientQuery->findAll();
-    	return $this->clientQuery;
+    	$this->fournisseurQuery=$this->fournisseurQuery->findAll();
+    	return $this->fournisseurQuery;
     }
 	//TODO:test pour savoir si customer donn� est null ou pas?
     /**
@@ -42,28 +41,28 @@ class ClientManager {
 
  
     public function delete($clientId) {
-        return $this->clientQuery->delete($clientId);
+        return $this->fournisseurQuery->delete($clientId);
     }
 
    
     public function view($clientId) {
-        $client = $this->clientQuery->view($clientId);
+        $client = $this->fournisseurQuery->view($clientId);
         return $client;
     }
     
     
     public function findById($contactId) {
-        return $this->clientQuery->findAllById($contactId);
+        return $this->fournisseurQuery->findAllById($contactId);
     }
 
     
     public function retrieveAll($offset, $rowCount, $sOrder = "", $sWhere = "") {
-        return $this->clientQuery->retrieveAll($offset, $rowCount, $sOrder, $sWhere);
+        return $this->fournisseurQuery->retrieveAll($offset, $rowCount, $sOrder, $sWhere);
     }
 
    
     public function count($where="") {
-        return $this->clientQuery->count($where);
+        return $this->fournisseurQuery->count($where);
     }
 
     

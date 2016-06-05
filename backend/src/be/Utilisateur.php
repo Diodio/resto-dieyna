@@ -14,7 +14,7 @@
 namespace Utilisateur;
 
 /** @Entity @HasLifecycleCallbacks 
- * @Table(name="utilisateur", uniqueConstraints={@UniqueConstraint(name="login_idx", columns={"login", "usine_id"})}) * */
+ * @Table(name="utilisateur") * */
 class Utilisateur {
 
     /** @Id
@@ -23,7 +23,7 @@ class Utilisateur {
     protected $id;
     
     /**
-     * @Column(type="string", length=60, nullable=false)
+     * @Column(type="string", length=60, nullable=false, unique=true)
      * */
     protected $login;
     /**
@@ -59,9 +59,6 @@ class Utilisateur {
     /** @Column(type="datetime", nullable=true) */
     public $disconnectedDate;
     
-/** @ManyToOne(targetEntity="Usine\Usine", inversedBy="usine", cascade={"persist"}) */
-    protected $usine;
-    
     /** @ManyToOne(targetEntity="Utilisateur\Profil", inversedBy="profil", cascade={"persist"}) */
     protected $profil;
     
@@ -72,7 +69,7 @@ class Utilisateur {
     public $updatedDate;
 
     /** @Column(type="datetime", nullable=true) */
-    public $deleteDate;
+    public $deletedDate;
     
     function getId() {
         return $this->id;
@@ -98,8 +95,16 @@ class Utilisateur {
         return $this->etatCompte;
     }
 
-    function getUsine() {
-        return $this->usine;
+    function getConnected() {
+        return $this->connected;
+    }
+
+    function getConnectedDate() {
+        return $this->connectedDate;
+    }
+
+    function getDisconnectedDate() {
+        return $this->disconnectedDate;
     }
 
     function getProfil() {
@@ -114,8 +119,8 @@ class Utilisateur {
         return $this->updatedDate;
     }
 
-    function getDeleteDate() {
-        return $this->deleteDate;
+    function getDeletedDate() {
+        return $this->deletedDate;
     }
 
     function setId($id) {
@@ -142,8 +147,16 @@ class Utilisateur {
         $this->etatCompte = $etatCompte;
     }
 
-    function setUsine($usine) {
-        $this->usine = $usine;
+    function setConnected($connected) {
+        $this->connected = $connected;
+    }
+
+    function setConnectedDate($connectedDate) {
+        $this->connectedDate = $connectedDate;
+    }
+
+    function setDisconnectedDate($disconnectedDate) {
+        $this->disconnectedDate = $disconnectedDate;
     }
 
     function setProfil($profil) {
@@ -158,36 +171,11 @@ class Utilisateur {
         $this->updatedDate = $updatedDate;
     }
 
-    function setDeleteDate($deleteDate) {
-        $this->deleteDate = $deleteDate;
-    }
-    function getConnected() {
-        return $this->connected;
+    function setDeletedDate($deletedDate) {
+        $this->deletedDate = $deletedDate;
     }
 
-    function getConnectedDate() {
-        return $this->connectedDate;
-    }
-
-    function getDisconnectedDate() {
-        return $this->disconnectedDate;
-    }
-
-    function setConnected($connected) {
-        $this->connected = $connected;
-    }
-
-    function setConnectedDate($connectedDate) {
-        $this->connectedDate = $connectedDate;
-    }
-
-    function setDisconnectedDate($disconnectedDate) {
-        $this->disconnectedDate = $disconnectedDate;
-    }
-
-        
-        
-
+    
 /** @PrePersist */
     public function doPrePersist() {
         date_default_timezone_set('GMT');

@@ -198,27 +198,47 @@ $status = $_COOKIE['status'];
                                 Parametrage </span> <b class="arrow fa fa-angle-down"></b>
                         </a> <b class="arrow"></b>
 
-                        <ul class="submenu">
+                            <ul class="submenu">
+                             <li id="MNU_RUBRIQUES" class=""><a id="RUBRIQUES" href="#"> <i
+                                        class="menu-icon fa fa-caret-right"></i> Rubrique
+                                </a> <b class="arrow"></b>
+                            </li>
                              <li id="MNU_PRODUITS" class=""><a id="PRODUITS" href="#"> <i
                                         class="menu-icon fa fa-caret-right"></i> Produit
+                                </a> <b class="arrow"></b>
+                            </li>
+                            <li id="MNU_CLIENTS" class=""><a id="CLIENTS" href="#"> <i
+                                        class="menu-icon fa fa-desktop"></i> <span class="menu-text">
+                                        Article </span>
                                 </a> <b class="arrow"></b>
                             </li>
                             <li id="MNU_MAREYEURS" class=""><a id="MAREYEURS" href="#"> <i
                                         class="menu-icon fa fa-caret-right"></i> Client
                                 </a> <b class="arrow"></b>
                             </li>
-
-                            <li id="MNU_CLIENTS" class=""><a id="CLIENTS" href="#"> <i
-                                        class="menu-icon fa fa-desktop"></i> <span class="menu-text">
-                                        Article </span>
+                        </ul>
+                    </li>
+                    
+                     <li id="MNU_CONSULTATION" class="hidden"><a href="#" class="dropdown-toggle"> <i
+                                class="menu-icon fa fa-list"></i> <span class="menu-text">
+                                Approvisionnement  </span>  <b class="arrow fa fa-angle-down"></b>
+                        </a> <b class="arrow"></b>
+                        <ul class="submenu">
+                            <li id="CONSULTATION_PRODUITS" class=""><a id="PROD" href="#"> <i
+                                        class="menu-icon fa fa-caret-right"></i> Ajouter
                                 </a> <b class="arrow"></b>
                             </li>
+                        <li id="CONSULTATION_ENTREES" class=""><a id="ENTREE" href="#"> <i
+                                        class="menu-icon fa fa-caret-right"></i> Consulter liste
+                                </a> <b class="arrow"></b>
+                         </li>
+                            
                         </ul>
                     </li>
                     
                     <li id="BONACHAT"class="hidden"><a href="#" class="dropdown-toggle"> <i
                                 class="fa fa-pencil fa-fw"></i> <span class="menu-text">
-                                Commande </span> <b class="arrow fa fa-angle-down"></b>
+                                Consommation </span> <b class="arrow fa fa-angle-down"></b>
                         </a> <b class="arrow"></b>
 
                         <ul class="submenu">
@@ -232,46 +252,15 @@ $status = $_COOKIE['status'];
                                         Consulter liste </span>
                                 </a> <b class="arrow"></b>
                             </li>
-                           
                         </ul>
                     </li>
-                    
-
-                     
-<!--                         </ul> -->
-
-                   
-                     
-                      
-
-
-                 
-                    
-                    <li id="MNU_CONSULTATION" class="hidden"><a href="#" class="dropdown-toggle"> <i
+                     <li id="LIST_USERS1" class=""><a id="USERS" href="#"> <i
                                 class="menu-icon fa fa-list"></i> <span class="menu-text">
-                                Consultation  </span>  <b class="arrow fa fa-angle-down"></b>
-                        </a> <b class="arrow"></b>
-                        <ul class="submenu">
-                            <li id="CONSULTATION_PRODUITS" class=""><a id="PROD" href="#"> <i
-                                        class="menu-icon fa fa-caret-right"></i> Détails Produits en Stock
-                                </a> <b class="arrow"></b>
-                            </li>
-                        <li id="CONSULTATION_ENTREES" class=""><a id="ENTREE" href="#"> <i
-                                        class="menu-icon fa fa-caret-right"></i> Entrées de bons de sortie
-                                </a> <b class="arrow"></b>
-                         </li>
-                            
-                        </ul>
-                    </li>
-
-                    <li id="LIST_USERS" class="hidden"><a id="USERS" href="#"> <i
-                                class="menu-icon fa fa-group"></i> <span class="menu-text">
-                                Utilisateurs <span class="badge badge-transparent tooltip-error"
+                                Cumul journalier <span class="badge badge-transparent tooltip-error"
                                                     title="2 Important Events"> </span>
                             </span>
                         </a> <b class="arrow"></b>
                     </li>
-                    
                     <li id="MNU_INVENTAIRE" class="hidden"><a href="#" class="dropdown-toggle"> <i
                                 class="menu-icon fa fa-glyphicon glyphicon-arrow-left"></i> <span class="menu-text">
                                 Inventaires  </span>  <b class="arrow fa fa-angle-down"></b>
@@ -297,6 +286,13 @@ $status = $_COOKIE['status'];
                         </ul>
                     </li>
                    
+                   <li id="LIST_USERS" class="hidden"><a id="USERS" href="#"> <i
+                                class="menu-icon fa fa-group"></i> <span class="menu-text">
+                                Utilisateurs <span class="badge badge-transparent tooltip-error"
+                                                    title="2 Important Events"> </span>
+                            </span>
+                        </a> <b class="arrow"></b>
+                    </li>
               </ul>
                 <!-- /.nav-list -->
 

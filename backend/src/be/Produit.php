@@ -17,15 +17,12 @@ class Produit {
     protected $libelle;
     
     /**
-     * @Column(type="decimal", scale=2, precision=10,nullable=false)
-     * */
-    protected $prixUnitaire;
+     *  @ManyToOne(targetEntity="Rubrique\Article", inversedBy="rubrique") 
+     * @JoinColumn(name="rubrique_id", referencedColumnName="id",
+      onDelete="CASCADE") */
+    protected $rubrique;
     
-    /**
-     * @Column(type="decimal", scale=2, precision=10, nullable=false)
-     * */
-    protected $quantite;
-    
+      
     
     /** @Column(type="datetime", nullable=true) */
     public $createdDate;
@@ -102,6 +99,14 @@ class Produit {
         $this->createdDate = new \DateTime("now");
         $this->updatedDate = new \DateTime("now");
     }
+    function getRubrique() {
+        return $this->rubrique;
+    }
+
+    function setRubrique($rubrique) {
+        $this->rubrique = $rubrique;
+    }
+
 
 
     }

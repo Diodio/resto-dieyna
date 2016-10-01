@@ -22,26 +22,23 @@ class Article {
      */
     protected $id;
     
-    /**
-     * @Column(type="string", length=60, nullable=false, unique=true)
-     * */
-    protected $code;
-    
+      
     /**
      * @Column(type="string", length=160, nullable=false)
      * */
     protected $libelle;
+    
+    /**
+     *  @ManyToOne(targetEntity="Rubrique\Article", inversedBy="rubrique") 
+     * @JoinColumn(name="rubrique_id", referencedColumnName="id",
+      onDelete="CASCADE") */
+    protected $rubrique;
     
      /**
      * @Column(type="decimal", scale=2, precision=10,nullable=false)
      * */
     protected $prixUnitaire;
     
-    /**
-     * @Column(type="decimal", scale=2, precision=10, nullable=false)
-     * */
-    protected $quantite;
-
     /** @Column(type="datetime", nullable=true) */
     public $createdDate;
 
@@ -51,8 +48,7 @@ class Article {
     /** @Column(type="datetime", nullable=true) */
     public $deletedDate;
     
-    /** @ManyToOne(targetEntity="Rubrique\Rubrique", inversedBy="rubrique", cascade={"persist"}) */
-    protected $rubrique;
+    
 
     function getId() {
         return $this->id;

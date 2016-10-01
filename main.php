@@ -10,8 +10,8 @@ $login = $_COOKIE['login'];
 $profil = $_COOKIE['profil'];
 $status = $_COOKIE['status'];
 //$codeUsine = $_COOKIE['codeUsine'];
-//$nomUtilisateur = $_COOKIE['nomUtilisateur'];
-//$description = $_COOKIE['description'];
+$nomUtilisateur = $_COOKIE['nomUtilisateur'];
+$description = $_COOKIE['description'];
 //$nomUsine = $_COOKIE['nomUsine'];
 
 ?>

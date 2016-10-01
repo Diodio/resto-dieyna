@@ -292,7 +292,7 @@
                     bootbox.confirm("Voulez vous vraiment supprimer cette rubrique", function(result) {
                         if (result) {
                              var rubriqueIdsChecked = rubriqueIds;
-                            $.post("<?php echo App::getBoPath(); ?>/rubrique/RubriqueController.php", {prrubriqueIds: rubriqueIdsChecked + "", ACTION: "<?php echo App::ACTION_REMOVE; ?>"}, function(data) {
+                            $.post("<?php echo App::getBoPath(); ?>/rubrique/RubriqueController.php", {rubriqueIds: rubriqueIdsChecked + "", ACTION: "<?php echo App::ACTION_REMOVE; ?>"}, function(data) {
                                 if (data.rc == 0){
                                     $.gritter.add({
                                         title: 'Notification',

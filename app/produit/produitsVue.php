@@ -74,13 +74,13 @@
                                    Id
                                 </th>
                                 <th style="border-left: 0px none;border-right: 0px none;">
+                                    Rubrique
+                                </th>
+                                <th style="border-left: 0px none;border-right: 0px none;">
                                     Désignation
                                 </th>
                                 <th style="border-left: 0px none;border-right: 0px none;">
-                                    Stock provisoire
-                                </th>
-                                <th style="border-left: 0px none;border-right: 0px none;">
-                                    Stock réel
+                                    Stock initial
                                 </th>
                                 <th style="border-left: 0px none;border-right: 0px none;">
                                 </th>
@@ -115,21 +115,15 @@
                                     </div>
                             </div>
                             <div class="form-group">
-                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Libellé facture </label>
+                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Rubrique </label>
                                     <div class="col-sm-9">
-                                        <input type="text" id="libelleFacture" name="libelleFacture" placeholder="" class="col-xs-10 col-sm-7">
+                                        <input type="text" id="rubrique" name="rubrique" placeholder="" class="col-xs-10 col-sm-7">
                                     </div>
                             </div>
                             <div class="form-group">
-                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Stock provisoire</label>
+                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Stock initial</label>
                                     <div class="col-sm-9">
-                                        <input type="text" id="stockProvisoire" readonly name="stockProvisoire" placeholder="" class="col-xs-10 col-sm-7" value="0.00">
-                                    </div>
-                            </div>
-                            <div class="form-group">
-                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Stock reel</label>
-                                    <div class="col-sm-9">
-                                        <input type="text" id="stockReel" readonly name="stockReel" placeholder="" class="col-xs-10 col-sm-7" value="0.00">
+                                        <input type="text" id="stockInitial" readonly name="stockInitial" placeholder="" class="col-xs-10 col-sm-7" value="0.00">
                                     </div>
                             </div>
                         </div>

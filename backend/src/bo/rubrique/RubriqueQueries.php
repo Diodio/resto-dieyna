@@ -50,9 +50,9 @@ class RubriqueQueries {
         }
     }
 
-    public function findById($achatId) {
-        if ($achatId != null) {
-            return Bootstrap::$entityManager->find('Rubrique\Rubrique', $achatId);
+    public function findById($rubriqueId) {
+        if ($rubriqueId != null) {
+            return Bootstrap::$entityManager->find('Rubrique\Rubrique', $rubriqueId);
         }
     }
 
@@ -102,21 +102,17 @@ class RubriqueQueries {
 
    
     
-public function findRubriqueDetails($rubriqueId) {
-        if ($rubriqueId != null) {
-            $sql = 'SELECT * from rubrique, mareyeur where mareyeur.id=achat.mareyeur_id and achat.id=' . $rubriqueId;
-            $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
-            $stmt->execute();
-            $achat = $stmt->fetchAll();
-            if ($achat != null)
-                return $achat;
-            else
-                return null;
-        }
-    }
-    public function getEntityManager() {
-        return $this->entityManager;
+public function retrieveAllRubriques() {
+        $query = "select p.id as value, p.libelle as text from rubrique p ";
+        $stmt =  Bootstrap::$entityManager->getConnection()->prepare($query);
+        $stmt->execute();
+        $types = $stmt->fetchAll();
+        if ($types != null)
+            return $types;
+        else
+            return null;
     }
 
+    
     
 }

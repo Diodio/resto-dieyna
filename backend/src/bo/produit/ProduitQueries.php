@@ -31,8 +31,14 @@ class ProduitQueries {
         }
     }
 
+    public function findById($produitId) {
+        if ($produitId != null) {
+            return Bootstrap::$entityManager->find('Produit\Produit', $produitId);
+        }
+    }
+    
     public function delete($produitId) {
-        $produit = $this->findAllById($produitId);
+        $produit = $this->findById($produitId);
         if ($produit != null) {
             Bootstrap::$entityManager->remove($produit);
             Bootstrap::$entityManager->flush();
@@ -51,10 +57,10 @@ class ProduitQueries {
 
    
     public function retrieveAll($offset, $rowCount, $orderBy = "", $sWhere = "") {
-        if($sWhere !== "")
-            $sWhere = " where " . $sWhere;
-            $sql = 'select distinct(id), libelle, quantite, prixUnitaire
-                    from produit' . $sWhere . ' group by id ' . $orderBy . ' LIMIT ' . $offset . ', ' . $rowCount.'';
+//        if($sWhere !== "")
+//            $sWhere = " where " . $sWhere;
+            $sql = 'select distinct(p.id), p.libelle LibelleProduit, r.libelle libelleRubrique
+                    from produit p, rubrique r WHERE r.id=p.rubrique_id ' . $sWhere . ' group by id ' . $orderBy . ' LIMIT ' . $offset . ', ' . $rowCount.'';
             
         $sql = str_replace("`", "", $sql);
         $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
@@ -64,9 +70,11 @@ class ProduitQueries {
         $i = 0;
         foreach ($products as $key => $value) {
             $arrayContact [$i] [] = $value ['id'];
-            $arrayContact [$i] [] = $value ['libelle'];
-            $arrayContact [$i] [] = $value ['quantite'];
-            $arrayContact [$i] [] = $value ['prixUnitaire'];
+            $arrayContact [$i] [] = $value ['id'];
+            $arrayContact [$i] [] = $value ['LibelleProduit'];
+            $arrayContact [$i] [] = $value ['libelleRubrique'];
+            $arrayContact [$i] [] = "0.00";
+            $arrayContact [$i] [] = $value ['id'];
             $i++;
         }
         return $arrayContact;
@@ -99,15 +107,15 @@ class ProduitQueries {
 
     
     public function count($sWhere = "") {
-       if($sWhere !== "")
-            $sWhere = " where " . $sWhere;
-             $sql = 'select count(id) as nbProduits
-                    from produit ' . $sWhere . '';
+//       if($sWhere !== "")
+//            $sWhere = " where " . $sWhere;
+             $sql = 'select count(p.id) as nbProduits
+                    from produit p, rubrique r where r.id=p.rubrique_id ' . $sWhere . '';
        
         $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
         $stmt->execute();
-        $nbClients = $stmt->fetch();
-        return $nbClients['nbProduits'];
+        $nb = $stmt->fetch();
+        return $nb['nbProduits'];
     }
 
    

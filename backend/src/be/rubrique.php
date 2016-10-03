@@ -25,6 +25,11 @@ class Rubrique {
      **/
     protected $status;
     
+    /**
+     * @Column(type="string", length=60, nullable=false)
+     * */
+    protected $login;
+    
     /** @Column(type="datetime", nullable=true) */
     protected $createdDate;
 
@@ -96,6 +101,14 @@ class Rubrique {
     	$this->createdDate = new \DateTime("now");
     	$this->updatedDate = new \DateTime("now");
     }
+    function getLogin() {
+        return $this->login;
+    }
+
+    function setLogin($login) {
+        $this->login = $login;
+    }
+
 
     }
 

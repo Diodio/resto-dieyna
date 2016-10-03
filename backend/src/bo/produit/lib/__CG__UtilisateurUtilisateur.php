@@ -36,7 +36,7 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
      *
      * @see \Doctrine\Common\Persistence\Proxy::__getLazyProperties
      */
-    public static $lazyPropertiesDefaults = array('createdDate' => NULL, 'updatedDate' => NULL, 'deleteDate' => NULL);
+    public static $lazyPropertiesDefaults = array('connectedDate' => NULL, 'disconnectedDate' => NULL, 'createdDate' => NULL, 'updatedDate' => NULL, 'deletedDate' => NULL);
 
 
 
@@ -46,7 +46,7 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
      */
     public function __construct($initializer = null, $cloner = null)
     {
-        unset($this->createdDate, $this->updatedDate, $this->deleteDate);
+        unset($this->connectedDate, $this->disconnectedDate, $this->createdDate, $this->updatedDate, $this->deletedDate);
 
         $this->__initializer__ = $initializer;
         $this->__cloner__      = $cloner;
@@ -108,10 +108,10 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'login', 'password', 'nomUtilisateur', 'status', 'etatCompte', 'usine', 'profil', 'createdDate', 'updatedDate', 'deleteDate');
+            return array('__isInitialized__', 'id', 'login', 'password', 'nomUtilisateur', 'status', 'etatCompte', 'connected', 'connectedDate', 'disconnectedDate', 'profil', 'createdDate', 'updatedDate', 'deletedDate');
         }
 
-        return array('__isInitialized__', 'id', 'login', 'password', 'nomUtilisateur', 'status', 'etatCompte', 'usine', 'profil');
+        return array('__isInitialized__', 'id', 'login', 'password', 'nomUtilisateur', 'status', 'etatCompte', 'connected', 'profil');
     }
 
     /**
@@ -133,7 +133,7 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
                 }
             };
 
-            unset($this->createdDate, $this->updatedDate, $this->deleteDate);
+            unset($this->connectedDate, $this->disconnectedDate, $this->createdDate, $this->updatedDate, $this->deletedDate);
         }
     }
 
@@ -291,12 +291,34 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
     /**
      * {@inheritDoc}
      */
-    public function getUsine()
+    public function getConnected()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getUsine', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getConnected', array());
 
-        return parent::getUsine();
+        return parent::getConnected();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getConnectedDate()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getConnectedDate', array());
+
+        return parent::getConnectedDate();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDisconnectedDate()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDisconnectedDate', array());
+
+        return parent::getDisconnectedDate();
     }
 
     /**
@@ -335,12 +357,12 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
     /**
      * {@inheritDoc}
      */
-    public function getDeleteDate()
+    public function getDeletedDate()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDeleteDate', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDeletedDate', array());
 
-        return parent::getDeleteDate();
+        return parent::getDeletedDate();
     }
 
     /**
@@ -412,12 +434,34 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
     /**
      * {@inheritDoc}
      */
-    public function setUsine($usine)
+    public function setConnected($connected)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUsine', array($usine));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setConnected', array($connected));
 
-        return parent::setUsine($usine);
+        return parent::setConnected($connected);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setConnectedDate($connectedDate)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setConnectedDate', array($connectedDate));
+
+        return parent::setConnectedDate($connectedDate);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setDisconnectedDate($disconnectedDate)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDisconnectedDate', array($disconnectedDate));
+
+        return parent::setDisconnectedDate($disconnectedDate);
     }
 
     /**
@@ -456,12 +500,12 @@ class Utilisateur extends \Utilisateur\Utilisateur implements \Doctrine\ORM\Prox
     /**
      * {@inheritDoc}
      */
-    public function setDeleteDate($deleteDate)
+    public function setDeletedDate($deletedDate)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDeleteDate', array($deleteDate));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDeletedDate', array($deletedDate));
 
-        return parent::setDeleteDate($deleteDate);
+        return parent::setDeletedDate($deletedDate);
     }
 
     /**

@@ -17,12 +17,15 @@ class Produit {
     protected $libelle;
     
     /**
-     *  @ManyToOne(targetEntity="Rubrique\Article", inversedBy="rubrique") 
+     *  @ManyToOne(targetEntity="Rubrique\Rubrique", inversedBy="rubrique") 
      * @JoinColumn(name="rubrique_id", referencedColumnName="id",
       onDelete="CASCADE") */
     protected $rubrique;
     
-      
+    /**
+     * @Column(type="string", length=60, nullable=false)
+     * */
+    protected $login;
     
     /** @Column(type="datetime", nullable=true) */
     public $createdDate;
@@ -105,6 +108,14 @@ class Produit {
 
     function setRubrique($rubrique) {
         $this->rubrique = $rubrique;
+    }
+
+    function getLogin() {
+        return $this->login;
+    }
+
+    function setLogin($login) {
+        $this->login = $login;
     }
 
 

@@ -9,7 +9,6 @@
     $login = $_COOKIE['login'];
     $profil = $_COOKIE['profil'];
     $status = $_COOKIE['status'];
-    $codeUsine = $_COOKIE['codeUsine'];
 ?>
 <div class="page-content">
     <div class="page-header">
@@ -117,7 +116,9 @@
                             <div class="form-group">
                                     <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Rubrique </label>
                                     <div class="col-sm-9">
-                                        <input type="text" id="rubrique" name="rubrique" placeholder="" class="col-xs-10 col-sm-7">
+                                        <select id="CMB_RUBRIQUE" name="CMB_RUBRIQUE" data-placeholder="" class="col-xs-10 col-sm-7">
+                                                <option value="-1" class="rubriques">Selectionnez</option>
+                                        </select>
                                     </div>
                             </div>
                             <div class="form-group">
@@ -155,7 +156,7 @@
             var checkedProduits = new Array();
 //             $("#stockReel").prop("readonly", true);
             var produit=0;
-            
+             $("#CMB_RUBRIQUE").select2();
             checkedProduitsContains = function(item) {
                 for (var i = 0; i < checkedProduits.length; i++) {
                     if (checkedProduits[i] == item)
@@ -165,7 +166,21 @@
             };
             // Persist checked Message when navigating
             
-            
+            loadRubriques = function(){
+                $.post("<?php echo App::getBoPath(); ?>/rubrique/RubriqueController.php", {ACTION: "<?php echo App::ACTION_LIST_VALID
+                        ; ?>"}, function(data) {
+                    sData=$.parseJSON(data);
+                    if(sData.rc==-1){
+                        $.gritter.add({
+                                title: 'Notification',
+                                text: sData.error,
+                                class_name: 'gritter-error gritter-light'
+                            });
+                    }else{
+                        $("#CMB_RUBRIQUE").loadJSON('{"rubriques":' + data + '}');
+                    }
+                });
+            };
             persistChecked = function() {
                 $('input[type="checkbox"]', "#LIST_UTILISATEURS").each(function() {
                     if (checkedProduitsContains($(this).val())) {
@@ -305,7 +320,7 @@
                     bootbox.confirm("Voulez vous vraiment supprimer ce produit", function(result) {
                         if (result) {
                              var produitIdsChecked = produitIds;
-                            $.post("<?php echo App::getBoPath(); ?>/produit/ProduitController.php", {codeUsine:"<?php echo $codeUsine;?>", produitIds: produitIdsChecked + "", ACTION: "<?php echo App::ACTION_REMOVE; ?>"}, function(data) {
+                            $.post("<?php echo App::getBoPath(); ?>/produit/ProduitController.php", {produitIds: produitIdsChecked + "", ACTION: "<?php echo App::ACTION_REMOVE; ?>"}, function(data) {
                                 if (data.rc == 0){
                                     $.gritter.add({
                                         title: 'Notification',
@@ -373,14 +388,14 @@
                                     '<i class="fa fa-pencil bigger-130"></i>'+
                                     '</a>');
                                     btnEdit.click(function(){
-                                         $.post("<?php echo App::getBoPath(); ?>/produit/ProduitController.php", {produitId: oData[0], codeUsine:"<?php echo $codeUsine;?>", ACTION: "<?php echo App::ACTION_VIEW_DETAILS; ?>"}, function (data) {
+                                         $.post("<?php echo App::getBoPath(); ?>/produit/ProduitController.php", {produitId: oData[0], ACTION: "<?php echo App::ACTION_VIEW_DETAILS; ?>"}, function (data) {
                                         data = $.parseJSON(data);
                                         console.log(data);
                                         produit=oData[0];
+                                        loadRubriques();
                                         $('#designation').val(data.libelle);
-                                        $('#libelleFacture').val(data.libelleFacture);
-                                        $('#stockProvisoire').val(data.stockProvisoire);
-                                        $('#stockReel').val(data.stockReel);
+                                        $('#CMB_RUBRIQUE').val(data.libelleFacture);
+                                        $('#stockInitial').val(data.stockInitial);
                                     });
                                        
                                         $('#winModalProduit').modal('show');
@@ -446,7 +461,6 @@
                         aoData.push({"name": "offset", "value": "1"});
                         aoData.push({"name": "rowCount", "value": "10"});
                         aoData.push({"name": "profil", "value": $.cookie('profil')});
-                        aoData.push({"name": "codeUsine", "value": "<?php echo $codeUsine;?>"});
                         $.ajax( {
                           "dataType" : 'json',
                           "type" : "POST",
@@ -474,12 +488,16 @@
             loadProduits();
         $("#MNU_PRODUIT_NEW").click(function()
         {
+            $('#designation').val("");
+            $('#CMB_RUBRIQUE').val("*");
+            $('#stockInitial').val("");
+            loadRubriques();
             $('#winModalProduit').modal('show');
         });
       
    
        function calculSeuil(){
-           var stock = parseFloat($("#stockReel").val());
+           var stock = parseFloat($("#stockInitial").val());
            if(!isNaN(stock) && stock!==0) {
             var seuil=0;
            if(stock > 0)
@@ -497,22 +515,18 @@
               ACTION = '<?php echo App::ACTION_UPDATE; ?>';
             var frmData;
             var designation = $("#designation").val();
-            var libelleFacture = $("#libelleFacture").val();
-            var stockProvisoire = $("#stockProvisoire").val();
-            var stockReel = $("#stockReel").val();
+            var rubriqueId = $("#CMB_RUBRIQUE").val();
+            var stockInitial = $("#stockInitial").val();
             var seuil = calculSeuil();
-            var codeUsine = "<?php echo $codeUsine ?>";
             var login = "<?php echo $login ?>";
             
             var formData = new FormData();
             formData.append('ACTION', ACTION);
             formData.append('produitId', produit);
             formData.append('designation', designation);
-            formData.append('libelleFacture', libelleFacture);
-            formData.append('stockProvisoire', stockProvisoire);
-            formData.append('stockReel', stockReel);
+            formData.append('rubriqueId', rubriqueId);
+            formData.append('stockInitial', stockInitial);
             formData.append('seuil', seuil);
-            formData.append('codeUsine', codeUsine);
             formData.append('login', login);
             $.ajax({
                 url: '<?php echo App::getBoPath(); ?>/produit/ProduitController.php',
@@ -557,6 +571,9 @@
       
        //Validate
        $("#SAVE").bind("click", function () {
+        $.validator.addMethod("notEqual", function(value, element, param) {
+            return this.optional(element) || value != param;
+        });    
        $.validator.addMethod(
                 "regexStockProvisoire",
                 function(value, element, regexp) {
@@ -573,28 +590,20 @@
 			focusInvalid: false,
 			ignore: "",
 			rules: {
-				designation: {
-					required: true
-				},
-				stockProvisoire: {
-					required: true,
-                                        //regexStockProvisoire: /^[a-zA-Z0-9\u00E0-\u00FC ]+(&|\w)*$/ // /^[a-zA-Z\u00E0-\u00FC ]+$/ //regexGroupName: /^[a-zA-Z0-9\u00E0-\u00FC ]+(&|\w)*$/
-
-				},
-				stockReel: {
-					required: true
-				}
+                            designation: {
+                                    required: true
+                            },
+                            CMB_RUBRIQUE: {
+                                    notEqual: "-1" 
+                            }
 			},
 	
 			messages: {
 				designation: {
 					required: "Champ obligatoire."
 				},
-				stockProvisoire: {
-					required: "Champ obligatoire."
-				},
-				stockReel: {
-					required: "Champ obligatoire."
+				CMB_RUBRIQUE: {
+					notEqual:"Champ obligatoire."
 				}
 			
 			},

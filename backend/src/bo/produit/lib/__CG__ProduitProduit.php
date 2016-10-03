@@ -36,7 +36,7 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
      *
      * @see \Doctrine\Common\Persistence\Proxy::__getLazyProperties
      */
-    public static $lazyPropertiesDefaults = array('createdDate' => NULL, 'updatedDate' => NULL, 'deleteDate' => NULL);
+    public static $lazyPropertiesDefaults = array('createdDate' => NULL, 'updatedDate' => NULL, 'deletedDate' => NULL);
 
 
 
@@ -46,7 +46,7 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
      */
     public function __construct($initializer = null, $cloner = null)
     {
-        unset($this->createdDate, $this->updatedDate, $this->deleteDate);
+        unset($this->createdDate, $this->updatedDate, $this->deletedDate);
 
         $this->__initializer__ = $initializer;
         $this->__cloner__      = $cloner;
@@ -108,10 +108,10 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'id', 'libelle', 'prixUnitaire', 'familleProduit', 'createdDate', 'updatedDate', 'deleteDate', 'achat', 'stock');
+            return array('__isInitialized__', 'id', 'libelle', 'rubrique', 'login', 'createdDate', 'updatedDate', 'deletedDate');
         }
 
-        return array('__isInitialized__', 'id', 'libelle', 'prixUnitaire', 'familleProduit', 'achat', 'stock');
+        return array('__isInitialized__', 'id', 'libelle', 'rubrique', 'login');
     }
 
     /**
@@ -133,7 +133,7 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
                 }
             };
 
-            unset($this->createdDate, $this->updatedDate, $this->deleteDate);
+            unset($this->createdDate, $this->updatedDate, $this->deletedDate);
         }
     }
 
@@ -247,17 +247,6 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function getPoidsNet()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getPoidsNet', array());
-
-        return parent::getPoidsNet();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getPrixUnitaire()
     {
 
@@ -269,23 +258,12 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function getStock()
+    public function getQuantite()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStock', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getQuantite', array());
 
-        return parent::getStock();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getSeuil()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSeuil', array());
-
-        return parent::getSeuil();
+        return parent::getQuantite();
     }
 
     /**
@@ -313,12 +291,12 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function getDeleteDate()
+    public function getDeletedDate()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDeleteDate', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getDeletedDate', array());
 
-        return parent::getDeleteDate();
+        return parent::getDeletedDate();
     }
 
     /**
@@ -346,17 +324,6 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setPoidsNet($poidsNet)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setPoidsNet', array($poidsNet));
-
-        return parent::setPoidsNet($poidsNet);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function setPrixUnitaire($prixUnitaire)
     {
 
@@ -368,23 +335,12 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setStock($stock)
+    public function setQuantite($quantite)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStock', array($stock));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setQuantite', array($quantite));
 
-        return parent::setStock($stock);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setSeuil($seuil)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSeuil', array($seuil));
-
-        return parent::setSeuil($seuil);
+        return parent::setQuantite($quantite);
     }
 
     /**
@@ -412,34 +368,12 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setDeleteDate($deleteDate)
+    public function setDeletedDate($deletedDate)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDeleteDate', array($deleteDate));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setDeletedDate', array($deletedDate));
 
-        return parent::setDeleteDate($deleteDate);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getFamilleProduit()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getFamilleProduit', array());
-
-        return parent::getFamilleProduit();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setFamilleProduit($familleProduit)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setFamilleProduit', array($familleProduit));
-
-        return parent::setFamilleProduit($familleProduit);
+        return parent::setDeletedDate($deletedDate);
     }
 
     /**
@@ -456,34 +390,45 @@ class Produit extends \Produit\Produit implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function doPreUpdate()
+    public function getRubrique()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'doPreUpdate', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getRubrique', array());
 
-        return parent::doPreUpdate();
+        return parent::getRubrique();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getPoidsBrut()
+    public function setRubrique($rubrique)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getPoidsBrut', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setRubrique', array($rubrique));
 
-        return parent::getPoidsBrut();
+        return parent::setRubrique($rubrique);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setPoidsBrut($poidsBrut)
+    public function getLogin()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setPoidsBrut', array($poidsBrut));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getLogin', array());
 
-        return parent::setPoidsBrut($poidsBrut);
+        return parent::getLogin();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setLogin($login)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setLogin', array($login));
+
+        return parent::setLogin($login);
     }
 
 }

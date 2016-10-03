@@ -9,6 +9,8 @@ use Produit\Produit as Produit;
 use Bo\BaseController as BaseController;
 use Bo\BaseAction as BaseAction;
 use Produit\ProduitManager as ProduitManager;
+use Rubrique\RubriqueManager as RubriqueManager;
+use Log\Loggers as Logger;
 use Exceptions\ConstraintException as ConstraintException;
 use App as App;
                         
@@ -16,8 +18,10 @@ class ProduitController extends BaseController implements BaseAction {
 
     
     private $parameters;
+    private $logger;
             function __construct($request) {
        
+       $this->logger = new Logger(__CLASS__);
         $this->parameters = parse_ini_file("../../../../lang/trad_fr.ini");
         try {
             if(isset($request['ACTION'])) 
@@ -67,24 +71,29 @@ class ProduitController extends BaseController implements BaseAction {
 
     public function doInsert($request) {
         try {
-                $produit = new Produit();
-                $produitManager = new ProduitManager();
-                    $produit->setLibelle($request['libelle']);
-                    $produit->setQuantite($request['quantite']);
-                    $produit->setPrixUnitaire($request['prixUnitaire']);
-                    $produit->setSeuil($request['seuil']);
-                    $produitExist = $produitManager->findProduitsByName($request['libelle']);
-                    var_dump($produitExist);
-                  //  $produitAdded = $produitManager->insert($produit);
-//                    if ($produitAdded->getId() != null) {
-//                        $this->doSuccess($produitAdded->getId(), 'Produit enregistré avec succes');
-//                     
-//                } else {
-//                    throw new Exception('impossible d\'inserer ce produit');
-//                }
-            
+            $produit = new Produit();
+            $produitManager = new ProduitManager();
+            $produit->setLibelle($request['designation']);
+           
+            $rubriqueManager= new RubriqueManager();
+            $rubrique=$rubriqueManager->findById($request['rubriqueId']);
+            $produit->setRubrique($rubrique);
+            $produit->setLogin($request['login']);
+            $produitExist = $produitManager->findProduitsByName($request['designation']);
+            if ($produitExist == NULL){
+                $produitAdded = $produitManager->insert($produit);
+            if ($produitAdded->getId() != null) {
+                $this->doSuccess($produitAdded->getId(), 'Produit enregistré avec succes');
+            } else {
+                throw new Exception('impossible d\'inserer ce produit');
+            }
+            }
+            else {
+                 throw new Exception('Ce produit existe déja');
+            }
         } catch (Exception $e) {
-            throw new Exception('ERREUR SERVEUR');
+            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
+            throw new Exception('Erreur lors du traitement de votre requette');
         }
     }
 
@@ -154,7 +163,7 @@ class ProduitController extends BaseController implements BaseAction {
             if (isset($request['iDisplayStart']) && isset($request['iDisplayLength'])) {
                 // Begin order from dataTable
                 $sOrder = "";
-                $aColumns = array('libelle', 'quantite', 'prixUnitaire');
+                $aColumns = array('p.libelle', 'r.libelle');
                 if (isset($request['iSortCol_0'])) {
                     $sOrder = "ORDER BY  ";
                     for ($i = 0; $i < intval($request['iSortingCols']); $i++) {
@@ -173,15 +182,16 @@ class ProduitController extends BaseController implements BaseAction {
                 // Begin filter from dataTable
                 $sWhere = "";
                 if (isset($request['sSearch']) && $request['sSearch'] != "") {
+                    //$sWhere." and ";
                     $sSearchs = explode(" ", $request['sSearch']);
                     for ($j = 0; $j < count($sSearchs); $j++) {
-                        $sWhere .= " ";
+                        $sWhere .= " and (";
                         for ($i = 0; $i < count($aColumns); $i++) {
                             $sWhere .= "(" . $aColumns[$i] . " LIKE '%" . $sSearchs[$j] . "%') OR";
                             if ($i == count($aColumns) - 1)
                                 $sWhere = substr_replace($sWhere, "", -3);
                         }
-                       // $sWhere = $sWhere .=")";
+                        $sWhere = $sWhere .=")";
                     }
                 }
                 // End filter from dataTable
@@ -203,25 +213,22 @@ class ProduitController extends BaseController implements BaseAction {
     }
 
     public function doRemove($request) {
-        $this->logger->log->info('Action Remove contact');
+        $this->logger->log->info('Action Remove produit');
         $this->logger->log->info(json_encode($request));
         try {
-            if (isset($request['contactIds'])) {
-                $this->logger->log->info('Remove with params : ' . $request['contactIds']);
-                $contactId = $request['contactIds'];
-                $contactManager = new ContactManager();
-                $nbModified = $contactManager->remove($contactId);
+            if (isset($request['produitIds'])) {
+                $this->logger->log->info('Remove with params : ' . $request['produitIds']);
+                $produitIds = $request['produitIds'];
+                $produitManager = new ProduitManager();
+                $nbModified = $produitManager->delete($produitIds);
                 $this->doSuccess($nbModified, $this->parameters['REMOVED']);
             } else {
                 $this->logger->log->trace('Remove : Params not enough');
-                $this->doError('-1', $this->parameters['CONTACT_NOT_REMOVED']);
+                throw new Exception('Paramètres insuffisants');
             }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw $e;
         } catch (Exception $e) {
             $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
+            throw new Exception('Erreur lors du traitement de votre requette');
         }
     }
 

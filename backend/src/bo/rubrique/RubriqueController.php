@@ -37,6 +37,9 @@ class RubriqueController extends BaseController implements BaseAction {
                         case \App::ACTION_LIST:
                                 $this->doList($request);
                                 break;
+                        case \App::ACTION_LIST_VALID:
+                                $this->doGetListRubrique($request);
+                                break;
                         case \App::ACTION_REMOVE:
                                 $this->doRemove($request);
                                 break;
@@ -53,13 +56,14 @@ class RubriqueController extends BaseController implements BaseAction {
         try {
                 $rubrique = new Rubrique();
                 $rubriqueManager = new RubriqueManager;
-                    $rubrique->setCode($request['code']);
-                    $rubrique->setLibelle($request['libelle']);
+                $rubrique->setCode($request['code']);
+                $rubrique->setLibelle($request['libelle']);
+                $rubrique->setLogin($request['login']);
                     //$produitExist = $rubriqueManager->findRubriquesByName($request['libelle']);
-                    $Added = $rubriqueManager->insert($rubrique);
-                    if ($Added->getId() != null) {
-                        $this->doSuccess($Added->getId(), 'Rubrique enregistré avec succes');
-                     
+                $Added = $rubriqueManager->insert($rubrique);
+                if ($Added->getId() != null) {
+                    $this->doSuccess($Added->getId(), 'Rubrique enregistré avec succes');
+
                 } else {
                     throw new Exception('impossible d\'inserer ce produit');
                 }
@@ -78,6 +82,7 @@ class RubriqueController extends BaseController implements BaseAction {
                 $rubrique = $rubriqueManager->findById($request['rubriqueId']);
                 $rubrique->setCode($request['code']);
                 $rubrique->setLibelle($request['libelle']);
+                $rubrique->setLogin($request['login']);
                 $updated = $rubriqueManager->update($rubrique);
                 if ($updated != NULL)
                     $this->doSuccess($rubrique->getId(), 'Rubrique modifiée avec succes');
@@ -207,6 +212,20 @@ public function doViewDetails($request) {
         } catch (Exception $e) {
             $this->doError('-1', 'ERREUR_SERVEUR');
         }
+    }
+    
+    public function doGetListRubrique($request) {
+        try {
+                $rubriqueManager = new RubriqueManager();
+                $rubrique = $rubriqueManager->retrieveAllRubriques();
+                if($rubrique !=null)
+                    $this->doSuccessO($rubrique);
+                else
+                   echo json_encode(array());  
+            
+        } catch (Exception $e) {
+            throw new Exception('Erreur lors du traitement de votre requette');
+        } 
     }
 }
 

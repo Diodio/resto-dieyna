@@ -54,22 +54,26 @@ class RubriqueController extends BaseController implements BaseAction {
 
     public function doInsert($request) {
         try {
-                $rubrique = new Rubrique();
-                $rubriqueManager = new RubriqueManager;
+            $rubrique = new Rubrique();
+            $rubriqueManager = new RubriqueManager;
+            $existedCode = $rubriqueManager->findByCode($request['code']);
+            if ($existedCode == 0) {
                 $rubrique->setCode($request['code']);
                 $rubrique->setLibelle($request['libelle']);
                 $rubrique->setLogin($request['login']);
-                    //$produitExist = $rubriqueManager->findRubriquesByName($request['libelle']);
                 $Added = $rubriqueManager->insert($rubrique);
                 if ($Added->getId() != null) {
                     $this->doSuccess($Added->getId(), 'Rubrique enregistré avec succes');
-
                 } else {
-                    throw new Exception('impossible d\'inserer ce produit');
+                    $this->logger->log->info('Impossible de modifier cette rubrique');
+                    $this->doError('-1', 'Impossible de modifier cette rubrique');
                 }
-            
+            } else {
+                $this->logger->log->info('Ce code éxiste déja');
+                $this->doError('-1', 'Ce code éxiste déja');
+            }
         } catch (Exception $e) {
-            throw new Exception('ERREUR SERVEUR');
+            throw new Exception('Erreur lors du traitement de votre requette');
         }
     }
 

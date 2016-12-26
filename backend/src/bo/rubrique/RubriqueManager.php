@@ -87,5 +87,12 @@ public function findById($rubriqueId) {
     public function retrieveAllRubriques() {
        return $this->rubriqueQuery->retrieveAllRubriques();
     }
+    
+    public function findByCode($code) {
+        $rub = $this->rubriqueQuery->findByCode($code);
+        if($rub!=null)
+            return 1;
+        return 0;
+    }
 
 }

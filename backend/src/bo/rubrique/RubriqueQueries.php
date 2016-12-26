@@ -113,6 +113,15 @@ public function retrieveAllRubriques() {
             return null;
     }
 
-    
+  public function findByCode($code) {
+        $sql = 'SELECT id  FROM rubrique where code = "'. $code .'"';
+        $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
+        $stmt->execute();
+        $rub = $stmt->fetch();
+        if ($rub != null)
+            return $rub;
+        else
+            return null;
+    }  
     
 }

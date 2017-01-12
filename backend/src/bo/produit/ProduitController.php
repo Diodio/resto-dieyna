@@ -36,29 +36,14 @@ class ProduitController extends BaseController implements BaseAction {
                         case \App::ACTION_VIEW:
                                 $this->doView($request);
                                 break;
+                        case \App::ACTION_VIEW_DETAILS:
+                                $this->doViewDetails($request);
+                                break;
                         case \App::ACTION_LIST:
                                 $this->doList($request);
                                 break;
                         case \App::ACTION_REMOVE:
                                 $this->doRemove($request);
-                                break;
-                        case \App::ACTION_REVOKE:
-                                $this->doRevoke($request);
-                                break;
-                        case \App::ACTION_IMPORT:
-                                $this->doImport($request);
-                            	break;
-                        case \App::ACTION_EXPORT:
-                                $this->doExport($request);
-                        	break;
-                        case \App::ACTION_SEARCH:
-                                $this->doSearch($request);
-                                break;
-                        case \App::ACTION_COUNT_RECIPIENTS:
-                                $this->doGetNbContacts($request);
-                                break;
-                        case \App::ACTION_DELETE_CONTACTADD:
-                                $this->doDeleteContactAdd($request);
                                 break;
                     }
             } else {
@@ -70,26 +55,25 @@ class ProduitController extends BaseController implements BaseAction {
     }
 
     public function doInsert($request) {
+        $this->logger->log->info('Action insert produit');
+        $this->logger->log->info(json_encode($request));
         try {
             $produit = new Produit();
             $produitManager = new ProduitManager();
-            $produit->setLibelle($request['designation']);
-           
-            $rubriqueManager= new RubriqueManager();
-            $rubrique=$rubriqueManager->findById($request['rubriqueId']);
-            $produit->setRubrique($rubrique);
+            $produit->setCode($request['code']);
+            $produit->setLibelle($request['libelle']);
             $produit->setLogin($request['login']);
-            $produitExist = $produitManager->findProduitsByName($request['designation']);
+            $produitExist = $produitManager->findProduitsByCode($request['code']);
             if ($produitExist == NULL){
                 $produitAdded = $produitManager->insert($produit);
             if ($produitAdded->getId() != null) {
                 $this->doSuccess($produitAdded->getId(), 'Produit enregistré avec succes');
             } else {
-                throw new Exception('impossible d\'inserer ce produit');
+                $this->doError('-1','impossible d\'inserer ce produit');
             }
             }
             else {
-                 throw new Exception('Ce produit existe déja');
+                $this->doError('-1', 'Ce produit existe déja');
             }
         } catch (Exception $e) {
             $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
@@ -100,60 +84,27 @@ class ProduitController extends BaseController implements BaseAction {
     public function doUpdate($request) {
         $this->logger->log->info('Action Update contact');
         $this->logger->log->info(json_encode($request));
-        try {
-            if (isset($request['contactId']) && $request['cellular'] != '' && isset($request['cellular'])) {
-                $contactManager = new ContactManager();
-                $contactQueries = new \Contact\ContactQueries();
-                $contact = $contactManager->findById($request['contactId']);
-                if (isset($request['firstName'])) {
-                    $contact->setFirstName($request['firstName']);
-                }
-                if (isset($request['lastName'])) {
-                    $contact->setLastName($request['lastName']);
-                }
-                if (isset($request['email'])) {
-                    $contact->setEmail($request['email']);
-                }
-                // enlever le prefix + et les espaces
-                $cell=  str_replace('+', '', $request['cellular']);
-                $cell=preg_replace('/\s+/', '', $cell);
-                $contact->setCellular($cell);
-                //vérification de la validité
-                $validNumber= new \AtomicTask\ValidNumber();
-                try{
-                    $validNumber->testNumber($cell);
-                    $contact->setValidate(1);
-                    $contact->setReason(null);
-                } catch (Exception $ex) {
-                    $contact->setValidate(0);
-                }
-                
-                $userManager = new \Customer\UserManager();
-                $user = $userManager->findById($request['userId']);
-                if ($user != null) {
-                    $contact->setUser($user);
-                    $this->logger->log->info('try to update contact :' . $contact->toString());
-                    if (isset($request['addChamp'])) {
-                        $this->logger->log->info('updating contact with addChamp :' . $request['addChamp']);
-                        $contactManager->update($contact, $request['addChamp']);
-                    } else {
-                        $contactManager->update($contact);
-                    }
-                    $this->doSuccess($contact->getId(), $this->parameters['UPDATED']);
-                } else {
-                    $this->logger->log->info('Contact not update because user is NULL');
-                    throw new ConstraintException($this->parameters['CONTACT_NOT_UPDATED']);
-                }
+          try {
+            $produitManager = new ProduitManager();
+            $produit = $produitManager->findById($request['produitId']);
+            $produit->setCode($request['code']);
+            $produit->setLibelle($request['libelle']);
+            $produit->setLogin($request['login']);
+//            $produitExist = $produitManager->findProduitsByCode($request['code']);
+//            if ($produitExist == NULL){
+                $produitAdded = $produitManager->update($produit);
+            if ($produitAdded->getId() != null) {
+                $this->doSuccess($produitAdded->getId(), 'Produit mis a jour avec succes');
             } else {
-                $this->logger->log->trace('Update : Params not enough');
-                throw new ConstraintException($this->parameters['CELLULAR_NOT_EMPTY']);
+                $this->doError('-1','impossible de modifier ce produit');
             }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw $e;
+//            }
+//            else {
+//                $this->doError('-1', 'Ce produit existe déja');
+//            }
         } catch (Exception $e) {
             $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
+            throw new Exception('Erreur lors du traitement de votre requette');
         }
     }
 
@@ -163,7 +114,7 @@ class ProduitController extends BaseController implements BaseAction {
             if (isset($request['iDisplayStart']) && isset($request['iDisplayLength'])) {
                 // Begin order from dataTable
                 $sOrder = "";
-                $aColumns = array('p.libelle', 'r.libelle');
+                $aColumns = array('code', 'libelle');
                 if (isset($request['iSortCol_0'])) {
                     $sOrder = "ORDER BY  ";
                     for ($i = 0; $i < intval($request['iSortingCols']); $i++) {
@@ -185,7 +136,7 @@ class ProduitController extends BaseController implements BaseAction {
                     //$sWhere." and ";
                     $sSearchs = explode(" ", $request['sSearch']);
                     for ($j = 0; $j < count($sSearchs); $j++) {
-                        $sWhere .= " and (";
+                        $sWhere .= " (";
                         for ($i = 0; $i < count($aColumns); $i++) {
                             $sWhere .= "(" . $aColumns[$i] . " LIKE '%" . $sSearchs[$j] . "%') OR";
                             if ($i == count($aColumns) - 1)
@@ -261,354 +212,23 @@ class ProduitController extends BaseController implements BaseAction {
         }
     }
 
-    public function doRevoke($request) {
-        $this->logger->log->info('Action revoke contact');
-        $this->logger->log->info(json_encode($request));
+    public function doViewDetails($request) {
         try {
-            if (isset($request['userId']) && isset($request['groupId']) && isset($request['contactIds'])) {
-                $this->logger->log->info('Revoke with params groupId: ' . $request['groupId'] . ' AND contactIds ' . $request['contactIds']);
-                if ($request['groupId'] != "*") {
-                    $groupId = $request['groupId'];
-                    $contactIds = $request['contactIds'];
-                    $contactManager = new ContactManager();
-                    $nbModified = $contactManager->revokeContact($groupId, $contactIds);
-                    $this->doSuccess($nbModified, $this->parameters['REVOKED']);
-                } else {
-                    $this->logger->log->trace('Cette opération est impossible pour ce groupe');
-                    throw new ConstraintException($this->parameters['OPERATION_IMPOSSIBLE']);
-                }
-            } else {
-                $this->logger->log->trace('Revoke : Params not enough');
-            }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw $e;
-        } catch (Exception $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
-        }
-    }
-
-    public function doImport($request) {
-        $this->logger->log->trace('Action Importer liste de contacts');
-        $this->logger->log->trace(json_encode($request));
-        $contactExist = 0;
-        $nbr_ins_contacts = 0;
-        $contactsList = array();
-        $separateur= $request['separateur'];
-        $champs = json_decode($request['champs']);
-        try {
-            $fileContent = $_FILES['contactfile']['tmp_name'];
-            $filename = $_FILES['contactfile']['name'];
-            $this->logger->log->trace($fileContent);
-            $ext = pathinfo($filename, PATHINFO_EXTENSION);
-            $this->logger->log->trace($ext);
-            if($ext=='csv'){
-                if(($handle = fopen($fileContent, 'r')) !== FALSE) {
-                    set_time_limit(0);
-
-                    $row = 0;
-
-                    while(($data = fgetcsv($handle, 1000000, $separateur)) !== FALSE) {
-                        // number of fields in the csv
-                        $num = count($data);
-                        for ($i=0; $i<$num; $i++){
-                            $j=$i+1;
-                            $contactsList[$row]['champs_'.$j] = $data[$i];
-                        }
-                        $row++;
-                    }
-                    
-                    fclose($handle);
-                }
-            }else if($ext=='xlsx'){
-                $this->logger->log->trace('is xlsx');
-                $fichierxlsx = new SimpleXLSX($fileContent);
-                $contactsList=array();
-                foreach ($fichierxlsx->rows() as $keyRow => $cellIterator) {
-                    $contact=array();
-                    $j=0;
-                    foreach ($cellIterator as $cell) {
-                        $contact['champs_'.$j] = ''.$cell;
-                        $j++;
-                    }
-                    $this->logger->log->trace('one contact ' . json_encode($contact));
-                    if(count($contact)!=0){
-                        $contactsList[]=$contact;
-                    }
-                }
-            }
-            $this->logger->log->trace('file ' . json_encode($contactsList));
-            
-            $champsGroups = $request['groups'];
-            $this->logger->log->trace('contacts ' . json_encode($contactsList));
-            $this->logger->log->trace('champs ' . json_encode($champs));
-            $this->logger->log->trace('champsgroup ' . json_encode($champsGroups));
-            
-            $groups = null;
-            if ($champsGroups != ''):
-                $groups = json_decode($champsGroups);
-            endif;
-            $this->logger->log->trace('user id ' . $request['userId']);
-            $userManager = new \Customer\UserManager();
-            $user = $userManager->findById($request['userId']);
-            $group = null;
-            if (isset($request['groupId'])) {
-                $groupQueries = new GroupQueries();
-                $group = $groupQueries->findById($request['groupId']);
-            }
-            $compteur = 0;
-            foreach ($champs as $key => $value) {
-                if (in_array($value, array('firstName', 'lastName', 'cellular', 'email'))) {
-                    ${'champ_' . $value} = $key;
-                }
-            }
-            foreach ($contactsList as $contactSeul) {
-                $this->logger->log->trace(json_encode($contactSeul));
-                if ($_POST['aEntete'] == "true"):
-                    if ($contactsList[0] == $contactSeul)
-                        continue;
-                endif;
-                $additionalFields = null;
-                foreach ($champs as $cc => $vc):
-                    if (!in_array($vc, array('firstName', 'lastName', 'cellular', 'email'))) {
-                        if ($groups != null) {
-                            $this->logger->log->trace('group: cc ' . $cc . ' vc ' . $groups->$vc);
-                            $additionalFields .= $groups->$vc . "," . $champs->$cc . "," . $contactSeul[$cc] . "|";
-                        }
-                    }
-                endforeach;
-                
-                $contact = new Contact();
-                if (isset($champ_firstName) && $champ_firstName != null)
-                    if (isset($contactSeul[$champ_firstName]))
-                        $contact->setFirstName($contactSeul[$champ_firstName]);
-
-                if (isset($champ_lastName) && $champ_lastName != null)
-                    if (isset($contactSeul[$champ_lastName]))
-                        $contact->setLastName($contactSeul[$champ_lastName]);
-
-                if (isset($champ_email) && $champ_email != null)
-                    if (isset($contactSeul[$champ_email]))
-                        $contact->setEmail($contactSeul[$champ_email]);
-
-                if (isset($champ_cellular) && $champ_cellular != null)
-                    if (isset($contactSeul[$champ_cellular]))
-                        $contact->setCellular($contactSeul[$champ_cellular]);
-                
-                
-                $this->logger->log->trace('trace process...');
-                if (isset($contactSeul[$champ_cellular]) && $contactSeul[$champ_cellular] != "") {
-                    if ($user != null) {
-                        $this->logger->log->trace('etape 1...');
-                        $contact->setUser($user);
-                        $contactManager = new ContactManager();
-                        $this->logger->log->info('try to insert contact with params : ');
-                        if ($additionalFields != null) {
-                            try {
-                                $testnumero = new \AtomicTask\ValidNumber();
-                                $this->logger->log->info('contactSeul : ' . json_encode($contactSeul));
-                                $this->logger->log->info('champ cellular : ' . $champ_cellular);
-                                $testnumero->testNumber($contactSeul[$champ_cellular]);
-                                $contact->setValidate(true);
-                                $contact->setOrigine('import');
-                                $contactManager->insert($contact, $group, $additionalFields);
-                                if ($contact->getId() == null){
-                                    $contactExist++;
-                                }
-                            } catch (\Exception $ex) {
-                                $this->logger->log->trace("Code d'erreur => " . $ex->getCode());
-                                $codeManager = new \Code\CodeManager();
-                                $objectCode = $codeManager->getByCode($ex->getCode());
-                                $contact->setValidate(false);
-                                $contact->setOrigine('import');
-                                $contact->setReason($objectCode->getMessage());
-                                $contactManager->insert($contact, $group, $additionalFields);
-                                if ($contact->getId() == null){
-                                    $contactExist++;
-                                   $groupContactManager = new GroupContactManager();
-                                    $groupContactManager->insert($contact, $group);
-                                    $contactManager->insert($contact, $group);
-                                }
-                            }
-                        }
-                        else {
-                            try {
-                                $this->logger->log->trace('etape 2...');
-                                $testnumero = new \AtomicTask\ValidNumber();
-                                $testnumero->testNumber($contactSeul[$champ_cellular]);
-                                $contact->setValidate(true);
-                                $contact->setOrigine('import');
-                                $this->logger->log->trace('etape 3...');
-                                $contactManager->insert($contact, $group);
-                                $this->logger->log->trace('etape 4...');
-                                if ($contact->getId() == null){
-                                    $this->logger->log->trace('etape 4.1 ...');
-                                    $this->logger->log->trace('insertion dans groupContact ...');
-                                    $objectContact= $contactManager->findContactByCellular($contactSeul[$champ_cellular], $request['userId']);
-                                    $contactManager->insertGroupContact($objectContact, $group);
-                                    $this->logger->log->trace('insertion effectuee ...');
-                                    $contactExist++;
-                                }
-                            } catch (\Exception $ex) {
-                                $this->logger->log->trace("Code d'erreur => " . $ex->getCode());
-                                $this->logger->log->trace('etape 5...');
-                                $codeManager = new \Code\CodeManager();
-                                $objectCode = $codeManager->getByCode($ex->getCode());
-                                $contact->setValidate(false);
-                                $contact->setOrigine('import');
-                                $contact->setReason($objectCode->getMessage());
-                                $this->logger->log->trace('etape 6...');
-                                $contactManager->insert($contact, $group);
-                                $this->logger->log->trace('etape 7...');
-                                if ($contact->getId() == null){
-                                $this->logger->log->trace('etape 8...');
-                                    if ($contact->getId() == null){
-                                        $this->logger->log->trace('etape 8.1 ...');
-                                        $contactExist++;
-                                        if(is_numeric($contactSeul[$champ_cellular])){
-                                            $objectContact= $contactManager->findContactByCellular($contactSeul[$champ_cellular], $request['userId']);
-                                            $contactManager->insertGroupContact($objectContact, $group);
-                                        }
-                                }
-                                
-                                }
-                            }
-                        }
-                        if ($contact != null && $contact->getId() != null) {
-                            $nbr_ins_contacts++;
-                        }
-                    } else {
-                        $this->logger->log->trace('etape 9...');
-                        $this->logger->log->trace('Contact not inserted because user is NULL');
-                        throw new ConstraintException($this->parameters['CONTACT_NOT_INSERTED']);
-                    }
-                } else {
-                    
-                                $this->logger->log->trace('etape 10...');
-                    throw new ConstraintException($this->parameters['CONTACT_NOT_INSERTED']);
-                }
-            }
-
-                                $this->logger->log->trace('etape 11...');
-            $this->doSuccessImport($nbr_ins_contacts, $contactExist);
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            
-                                $this->logger->log->trace('etape 12...');
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            $this->doSuccessImport($nbr_ins_contacts, $contactExist);
-        } catch (ConstraintException $e) {
-            
-                                $this->logger->log->trace('etape 13...');
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getLine());
-            $this->doSuccessImport($nbr_ins_contacts, $contactExist);
-        } catch (Exception $e) {
-            
-                                $this->logger->log->trace('etape 14...');
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
-        }
-    }
-
-    public function doExport($request) {
-        $this->logger->log->info('Action export contacts');
-        $this->logger->log->trace(json_encode($request));
-        try {
-            if (isset($request ['userId']) && isset($request ['groupId'])) {
-                $groupId = $request ['groupId'];
-                $userId = $request ['userId'];
-                $contactManager = new ContactManager ();
-                $contacts = $contactManager->findContactsByGroup($userId, $groupId);
-                $data = $this->parameters['ENTETE_EXPORT']."\n";
-                foreach ($contacts as $contact) {
-                    $data.=$contact[1] . ";" . $contact[2] . ";" . $contact[3] . ";" . $contact[4] . ";" . $contact[5] . ";" . $contact[6] . "\n";
-                }
-                header('Expires: 0');
-                header('Cache-control: private');
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header('Content-Description: File Transfer');
-                header("Content-type: application/vnd.ms-excel");
-                header('Content-Type: charset=utf-8');
-                header('Content-disposition: attachment; filename="fichier.csv"');
-                echo "\xEF\xBB\xBF"; // UTF-8 BOM
-                echo $data;
-            }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw $e;
-        } catch (Exception $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
-        }
-    }
-
-    public function doSearch($request) {
-        try {
-            if (isset($request['term'])) {
-                $produitManager = new ProduitManager ();
-                $term = trim(strip_tags($request['term']));
-                $produits = $produitManager->findAllProduits($term);
-                if ($produits != null)
-                    $this->doSuccessO($this->listObjectToArray($produits));
-                else
-                    echo json_encode(array());
-            }
-            else {
-                throw new ConstraintException($this->parameters['PARAM_NOT_ENOUGH']);
-            }
-        } catch (ConstraintException $e) {
-            throw $e;
-        } catch (Exception $e) {
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
-        }
-    }
-
-    public function doGetNbContacts($request) {
-        $this->logger->log->info('Action to count number of recipients');
-        $this->logger->log->info(json_encode($request));
-        try {
-            if (isset($request['groups'])) {
-                $contactManager = new ContactManager();
-                $recipients = $contactManager->getNbRecipients($request['groups'],$request['userId']);
-                if ($recipients != null)
-                    $this->doSuccessO($recipients);
+            if (isset($request['produitId']) && $request['produitId']!=='') {
+                $produitManager = new ProduitManager();
+                $produitDetails = $produitManager->findProduduitDetails($request['produitId']);
+                if ($produitDetails != null)
+                    $this->doSuccessO($produitDetails);
                 else
                     echo json_encode(array());
             } else {
-                $this->logger->log->trace('count recipients : Params not enough');
-                throw new ConstraintException($this->parameters['PARAM_NOT_ENOUGH']);
+                $this->doError('-1', 'Impossible de charger les details du produit');
             }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            $this->doError('-1', $e->getMessage());
         } catch (Exception $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            $this->doError('-1', $this->parameters['ERREUR_SERVEUR']);
+            $this->doError('-1', 'Erreur lors du traitement de votre requette');
         }
     }
-    public function doDeleteContactAdd($request) {
-        $this->logger->log->info('Action delete contact add');
-        $this->logger->log->info(json_encode($request));
-        try {
-            if(isset($request['id'])){
-                $id=$request['id'];
-                $contactAddMng=new ContactAddManager();
-                $removed=$contactAddMng->removeById($id);
-                if(is_numeric($removed)){
-                    echo $removed;
-                }else{
-                    throw new ConstraintException($this->parameters['ERREUR_SERVEUR']);
-                }
-                
-            }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            $this->doError('-1', $e->getMessage());
-        } catch (Exception $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            $this->doError('-1', $this->parameters['ERREUR_SERVEUR']);
-        }
-    }
+    
 
 }
 

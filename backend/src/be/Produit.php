@@ -14,13 +14,13 @@ class Produit {
     /**
      * @Column(type="string", length=160, nullable=false)
      * */
-    protected $libelle;
+    protected $code;
     
     /**
-     *  @ManyToOne(targetEntity="Rubrique\Rubrique", inversedBy="rubrique") 
-     * @JoinColumn(name="rubrique_id", referencedColumnName="id",
-      onDelete="CASCADE") */
-    protected $rubrique;
+     * @Column(type="string", length=160, nullable=false)
+     * */
+    protected $libelle;
+    
     
     /**
      * @Column(type="string", length=60, nullable=false)
@@ -36,22 +36,27 @@ class Produit {
     /** @Column(type="datetime", nullable=true) */
     public $deletedDate;
     
+    
+/** @PrePersist */
+    public function doPrePersist() {
+        date_default_timezone_set('GMT');
+        $this->createdDate = new \DateTime("now");
+        $this->updatedDate = new \DateTime("now");
+    }
     function getId() {
         return $this->id;
     }
 
-    
+    function getCode() {
+        return $this->code;
+    }
 
     function getLibelle() {
         return $this->libelle;
     }
 
-    function getPrixUnitaire() {
-        return $this->prixUnitaire;
-    }
-
-    function getQuantite() {
-        return $this->quantite;
+    function getLogin() {
+        return $this->login;
     }
 
     function getCreatedDate() {
@@ -70,17 +75,16 @@ class Produit {
         $this->id = $id;
     }
 
-    
+    function setCode($code) {
+        $this->code = $code;
+    }
+
     function setLibelle($libelle) {
         $this->libelle = $libelle;
     }
 
-    function setPrixUnitaire($prixUnitaire) {
-        $this->prixUnitaire = $prixUnitaire;
-    }
-
-    function setQuantite($quantite) {
-        $this->quantite = $quantite;
+    function setLogin($login) {
+        $this->login = $login;
     }
 
     function setCreatedDate($createdDate) {
@@ -94,30 +98,6 @@ class Produit {
     function setDeletedDate($deletedDate) {
         $this->deletedDate = $deletedDate;
     }
-
-       
-/** @PrePersist */
-    public function doPrePersist() {
-        date_default_timezone_set('GMT');
-        $this->createdDate = new \DateTime("now");
-        $this->updatedDate = new \DateTime("now");
-    }
-    function getRubrique() {
-        return $this->rubrique;
-    }
-
-    function setRubrique($rubrique) {
-        $this->rubrique = $rubrique;
-    }
-
-    function getLogin() {
-        return $this->login;
-    }
-
-    function setLogin($login) {
-        $this->login = $login;
-    }
-
 
 
     }

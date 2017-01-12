@@ -13,10 +13,10 @@
 <div class="page-content">
     <div class="page-header">
         <h1>
-            Gestion des produits
+            Gestion des articles
             <small>
                 <i class="ace-icon fa fa-angle-double-right"></i>
-                Produit
+                Article
             </small>
         </h1>
     </div><!-- /.page-header -->
@@ -30,7 +30,7 @@
                     <div class="col-lg-1">
                          <button id="MNU_PRODUIT_NEW" data-toggle="dropdown"
                                     class="btn btn-mini btn-primary dropdown-toggle tooltip-info"
-                                    data-rel="tooltip" data-placement="top" title="Produit" style="
+                                    data-rel="tooltip" data-placement="top" title="Article" style="
                                     height: 32px;
                                     width: 80px;
                                     margin-top: -1px;
@@ -41,14 +41,14 @@
             </div>
 <!--            <h4 class="pink">
                 <i class="ace-icon fa fa-hand-o-right icon-animated-hand-pointer blue"></i>
-                <a href="#modal-table" role="button" class="green" data-toggle="modal"> Liste des produits </a>
+                <a href="#modal-table" role="button" class="green" data-toggle="modal"> Liste des articles </a>
             </h4>-->
             <div class="row">
                   <div class="widget-box transparent">
                     <div class="widget-header widget-header-flat">
                         <h4 class="widget-title lighter">
                             <i class="ace-icon fa fa-star orange"></i>
-                            Liste des produits
+                            Liste des articles
                         </h4>
 
                         <div class="widget-toolbar">
@@ -60,12 +60,12 @@
 
                     <div class="widget-body">
                         <div class="widget-main no-padding">
-                          <table id="LIST_PRODUITS" class="table table-striped table-bordered table-hover">
+                          <table id="LIST_ARTICLES" class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
                                 
                                 <th style="border-left: 0px none;border-right: 0px none;">
-                                    Code
+                                    Rubrique
                                 </th>
                                 <th style="border-left: 0px none;border-right: 0px none;">
                                     Libellé
@@ -87,20 +87,22 @@
                     </div><!-- /.widget-body -->
                 </div><!-- /.widget-box -->
             </div>
-            <div id="winModalProduit" class="modal fade" tabindex="-1">
+            <div id="winModalArticle" class="modal fade" tabindex="-1">
             <form id="validation-form" class="form-horizontal" role="form">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h3 class="smaller lighter blue no-margin">Produit</h3>
+                            <h3 class="smaller lighter blue no-margin">Article</h3>
                         </div>
 
                         <div class="modal-body" style="height: 150px;">
                             <div class="form-group">
-                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Code </label>
+                                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> Rubrique </label>
                                     <div class="col-sm-9">
-                                        <input type="text" id="code" name="code" placeholder="" class="col-xs-10 col-sm-7">
+                                        <select id="CMBRUBRIQUE" name="CMBRUBRIQUE" class="input-large">
+                                      <option value="-1" class="rubriques" >Sélectionner...</option>
+                                    </select>
                                     </div>
                             </div>
                             <div class="form-group">
@@ -133,25 +135,38 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-         var oTableProduits = null;
-            var nbTotalProduitsChecked=0;
-            var checkedProduits = new Array();
-//             $("#stockReel").prop("readonly", true);
-            var produit=0;
-             $("#CMB_RUBRIQUE").select2();
-            checkedProduitsContains = function(item) {
-                for (var i = 0; i < checkedProduits.length; i++) {
-                    if (checkedProduits[i] == item)
+         var oTableArticles = null;
+            var nbTotalArticlesChecked=0;
+            var checkedArticles = new Array();
+            var article=0;
+             $("#CMBRUBRIQUE").select2();
+            checkedArticlesContains = function(item) {
+                for (var i = 0; i < checkedArticles.length; i++) {
+                    if (checkedArticles[i] == item)
                         return true;
                 }
                 return false;
             };
             // Persist checked Message when navigating
             
-            
+            loadRubriques = function(){
+            $.post("<?php echo App::getBoPath(); ?>/rubrique/RubriqueController.php", {ACTION: "<?php echo App::ACTION_LIST_VALID; ?>"}, function(data) {
+                sData=$.parseJSON(data);
+                if(sData.rc==-1){
+                    $.gritter.add({
+                            title: 'Notification',
+                            text: sData.error,
+                            class_name: 'gritter-error gritter-light'
+                        });
+                }else{
+                    $("#CMBRUBRIQUE").loadJSON('{"rubriques":' + data + '}');
+                }
+            });
+            };
+            loadRubriques();
             persistChecked = function() {
-                $('input[type="checkbox"]', "#LIST_PRODUITS").each(function() {
-                    if (checkedProduitsContains($(this).val())) {
+                $('input[type="checkbox"]', "#LIST_ARTICLES").each(function() {
+                    if (checkedArticlesContains($(this).val())) {
                         $(this).attr('checked', 'checked');
                     } else {
                         $(this).removeAttr('checked');
@@ -164,15 +179,15 @@
                     this.checked = that.checked;
                     if (this.checked)
                     {
-                        checkedProduitsAdd($(this).val());
+                        checkedArticlesAdd($(this).val());
                       //  MessageSelected();
                         $('#TAB_GROUP a[href="#TAB_INFO"]').tab('show');
 			$('#TAB_MSG_VIEW').hide();
-                        nbTotalProduitsChecked=checkedProduits.length;
+                        nbTotalArticlesChecked=checkedArticles.length;
                     }
                     else
                     {
-                        checkedProduitsRemove($(this).val());
+                        checkedArticlesRemove($(this).val());
                    //    MessageUnSelected();
                         $('#TAB_GROUP a[href="#TAB_INFO"]').tab('show');
 			$('#TAB_MSG_VIEW').hide();
@@ -181,20 +196,20 @@
                 });
             });
             
-             $('#LIST_PRODUITS tbody').on('click', 'input[type="checkbox"]', function() {
+             $('#LIST_ARTICLES tbody').on('click', 'input[type="checkbox"]', function() {
                 context=$(this);
                 if ($(this).is(':checked') && $(this).val() != '*') {
-                    checkedProduitsAdd($(this).val());
+                    checkedArticlesAdd($(this).val());
                     MessageSelected();
                 } else {
-                    checkedProduitsRemove($(this).val());
+                    checkedArticlesRemove($(this).val());
                     MessageUnSelected();
                 }
                 ;
                 if(!context.is(':checked')){
                     $('table th input:checkbox').removeAttr('checked');
                 }else{
-                    if(checkedProduits.length==nbTotalProduitsChecked){
+                    if(checkedArticles.length==nbTotalArticlesChecked){
                         $('table th input:checkbox').prop('checked', true);
                     }
                 }
@@ -204,14 +219,14 @@
            // $('#SAVE').attr("disabled", true);
             MessageSelected = function(click)
             {
-                if (checkedProduits.length == 1){
+                if (checkedArticles.length == 1){
                     $('#SAVE').attr("disabled", false);
                     $('#TAB_MSG_VIEW').show();
 		    $('#TAB_GROUP a[href="#TAB_MSG"]').tab('show');
                 }else
                 {
                     $('#SAVE').attr("disabled", true);
-                    $('#nomProduit').text("");
+                    $('#nomArticle').text("");
                     $('#stockProvisoire').val("0.00");
                     $('#stockReel').val("0.00");
                     $('#nombreCarton').val("");
@@ -221,13 +236,13 @@
                     $('#TAB_MSG_VIEW').hide();
                     
                 }
-                if(checkedProduits.length==nbTotalProduitsChecked){
+                if(checkedArticles.length==nbTotalArticlesChecked){
                     $('table th input:checkbox').prop('checked', true);
                 }
             };
             MessageUnSelected = function()
             {
-               if (checkedProduits.length === 1){
+               if (checkedArticles.length === 1){
                    $('#SAVE').attr("disabled", false);
 		    $('#TAB_MSG_VIEW').show();
                     $('#TAB_GROUP a[href="#TAB_MSG"]').tab('show');
@@ -235,7 +250,7 @@
                 else
                 {
                     $('#SAVE').attr("disabled", true);
-                    $('#nomProduit').text("");
+                    $('#nomArticle').text("");
                     $('#stockProvisoire').val("0.00");
                     $('#stockReel').val("0.00");
                     $('#nombreCarton').val("");
@@ -251,25 +266,25 @@
             };
 
             // Add checked item to the array
-            checkedProduitsAdd = function(item) {
+            checkedArticlesAdd = function(item) {
                 if (!checkedMessageContains(item)) {
-                    checkedProduits.push(item);
+                    checkedArticles.push(item);
                 }
             };
             // Remove unchecked items from the array
-            checkedProduitsRemove = function(item) {
+            checkedArticlesRemove = function(item) {
                 var i = 0;
-                while (i < checkedProduits.length) {
-                    if (checkedProduits[i] == item) {
-                        checkedProduits.splice(i, 1);
+                while (i < checkedArticles.length) {
+                    if (checkedArticles[i] == item) {
+                        checkedArticles.splice(i, 1);
                     } else {
                         i++;
                     }
                 }
             };
             checkedMessageContains = function(item) {
-                for (var i = 0; i < checkedProduits.length; i++) {
-                    if (checkedProduits[i] == item)
+                for (var i = 0; i < checkedArticles.length; i++) {
+                    if (checkedArticles[i] == item)
                         return true;
                 }
                 return false;
@@ -284,20 +299,20 @@
             }).popover('toggle');
          };
          
-         removeProduit=function(produitIds){
-                    bootbox.confirm("Voulez vous vraiment supprimer ce produit", function(result) {
+         removeArticle=function(articleIds){
+                    bootbox.confirm("Voulez vous vraiment supprimer ce article", function(result) {
                         if (result) {
-                             var produitIdsChecked = produitIds;
-                            $.post("<?php echo App::getBoPath(); ?>/produit/ProduitController.php", {produitIds: produitIdsChecked + "", ACTION: "<?php echo App::ACTION_REMOVE; ?>"}, function(data) {
+                             var articleIdsChecked = articleIds;
+                            $.post("<?php echo App::getBoPath(); ?>/article/ArticleController.php", {articleIds: articleIdsChecked + "", ACTION: "<?php echo App::ACTION_REMOVE; ?>"}, function(data) {
                                 if (data.rc == 0){
                                     $.gritter.add({
                                         title: 'Notification',
-                                        text: "Produit supprimé",
+                                        text: "Article supprimé",
                                         class_name: 'gritter-success gritter-light'
                                     });
                                     $('table th input:checkbox').removeAttr('checked');
-                                     checkedProduits=new Array();
-                                    loadProduits();
+                                     checkedArticles=new Array();
+                                    loadArticles();
                                 }
                                 else{
                                     $.gritter.add({
@@ -313,15 +328,15 @@
                     });
                 }
                 
-             loadProduits = function() {
-                nbTotalProduitsChecked = 0;
-                checkedProduits = new Array();
-                var url =  '<?php echo App::getBoPath(); ?>/produit/ProduitController.php';
+             loadArticles = function() {
+                nbTotalArticlesChecked = 0;
+                checkedArticles = new Array();
+                var url =  '<?php echo App::getBoPath(); ?>/article/ArticleController.php';
 
-                if (oTableProduits != null)
-                    oTableProduits.fnDestroy();
+                if (oTableArticles != null)
+                    oTableArticles.fnDestroy();
 
-                oTableProduits = $('#LIST_PRODUITS').dataTable({
+                oTableArticles = $('#LIST_ARTICLES').dataTable({
                     "oLanguage": {
                     "sUrl": "<?php echo App::getHome(); ?>/datatable_fr.txt",
                     "oPaginate": {
@@ -348,7 +363,7 @@
                                     '<i class="fa fa-pencil bigger-130"></i>'+
                                     '</a>');
                                     btnEdit.click(function(){
-                                         $.post("<?php echo App::getBoPath(); ?>/produit/ProduitController.php", {produitId: oData[2], ACTION: "<?php echo App::ACTION_VIEW_DETAILS; ?>"}, function (data) {
+                                         $.post("<?php echo App::getBoPath(); ?>/article/ArticleController.php", {articleId: oData[2], ACTION: "<?php echo App::ACTION_VIEW_DETAILS; ?>"}, function (data) {
                                         data = $.parseJSON(data);
                                         if(data.rc==-1){
                                         $.gritter.add({
@@ -358,13 +373,16 @@
                                        }); 
                                      }else{
                                         console.log(data);
-                                        produit=oData[2];
-                                        $('#code').val(data.code);
+                                        article=oData[2];
+//                                        jsonText='{"value":'+data.oId+', "text":"'+nom+'"}';
+//                                        jsonText=JSON.parse(jsonText);
+//                                        $("#CMBRUBRIQUE").select2("data", jsonText, true);
+                                        $('#CMBRUBRIQUE').val(data.idArticle).change();
                                         $('#libelle').val(data.libelle);
                                     }
                                     });
                                        
-                                        $('#winModalProduit').modal('show');
+                                        $('#winModalArticle').modal('show');
                                     });
                                     btnEdit.tooltip({
                                         title: 'Modifier'
@@ -375,7 +393,7 @@
                                                 '</a>');
                                     //}
                                     btnRemove.click(function(){
-                                        removeProduit(oData[2]);
+                                        removeArticle(oData[2]);
                                     });
                                     btnRemove.tooltip({
                                         title: 'Supprimer'
@@ -398,13 +416,13 @@
 //                            checkbox=$(this).parent().find('input:checkbox:first');
 //                            if(!checkbox.is(':checked')){
 //                                checkbox.prop('checked', true);;
-//                                checkedProduitsAdd(aData[0]);
+//                                checkedArticlesAdd(aData[0]);
 //                                MessageSelected();
 //                                
 //                            }else{
 //                                checkbox.removeAttr('checked');
 //                                
-//                                checkedProduitsRemove(aData[0]);
+//                                checkedArticlesRemove(aData[0]);
 //                                MessageUnSelected();
 //                            }
 //                        });
@@ -442,7 +460,7 @@
                               }else{
                                   $('table th input:checkbox').removeAttr('checked');
                                   fnCallback(json);
-                                  nbTotalProduitsChecked=json.iTotalRecords;
+                                  nbTotalArticlesChecked=json.iTotalRecords;
                               }
                                 
                            }
@@ -451,38 +469,38 @@
                 });
             };
             
-            loadProduits();
+            loadArticles();
         $("#MNU_PRODUIT_NEW").click(function()
         {
-            $('#code').val("");
+            $('#CMBRUBRIQUE').val("-1").change();
             $('#libelle').val("");
-            $('#winModalProduit').modal('show');
+            $('#winModalArticle').modal('show');
         });
       
    
        
    
-         produitProcess = function (produit)
+         articleProcess = function (article)
         {
             
             var ACTION 
-            if(produit==0)       
+            if(article==0)       
                ACTION = '<?php echo App::ACTION_INSERT; ?>';
            else
               ACTION = '<?php echo App::ACTION_UPDATE; ?>';
             var frmData;
-            var code = $("#code").val();
+            var rubriqueId = $("#CMBRUBRIQUE").val();
             var libelle = $("#libelle").val();
             var login = "<?php echo $login ?>";
             
             var formData = new FormData();
             formData.append('ACTION', ACTION);
-            formData.append('produitId', produit);
-            formData.append('code', code);
+            formData.append('articleId', article);
+            formData.append('rubriqueId', rubriqueId);
             formData.append('libelle', libelle);
             formData.append('login', login);
             $.ajax({
-                url: '<?php echo App::getBoPath(); ?>/produit/ProduitController.php',
+                url: '<?php echo App::getBoPath(); ?>/article/ArticleController.php',
                 type: 'POST',
                 processData: false,
                 contentType: false,
@@ -497,7 +515,7 @@
                             text: data.action,
                             class_name: 'gritter-success gritter-light'
                         });
-                       loadProduits();
+                       loadArticles();
                     } 
                     else
                     {
@@ -543,7 +561,7 @@
 			focusInvalid: false,
 			ignore: "",
 			rules: {
-                            code: {
+                            CMBRUBRIQUE: {
                                     required: true
                             },
                             
@@ -553,7 +571,7 @@
 			},
 	
 			messages: {
-				code: {
+				CMBRUBRIQUE: {
 					required: "Champ obligatoire."
 				},
 				libelle: {
@@ -575,10 +593,10 @@
 			},
 	
 			submitHandler: function (form) {
-				 produitProcess(produit);
-				/// $('#winModalProduit').addClass('hide');
-                            $('#winModalProduit').modal('hide');
-                            $('#code').val("");
+				 articleProcess(article);
+				/// $('#winModalArticle').addClass('hide');
+                            $('#winModalArticle').modal('hide');
+                            $('#CMBRUBRIQUE').val("-1").change();
                             $('#libelle').val("");
 			},
 			invalidHandler: function (form) {

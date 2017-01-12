@@ -207,7 +207,7 @@ $description = $_COOKIE['description'];
                                         class="menu-icon fa fa-caret-right"></i> Produit
                                 </a> <b class="arrow"></b>
                             </li>
-                            <li id="MNU_CLIENTS" class=""><a id="CLIENTS" href="#"> <i
+                            <li id="MNU_ARTICLES" class=""><a id="ARTICLES" href="#"> <i
                                         class="menu-icon fa fa-desktop"></i> <span class="menu-text">
                                         Article </span>
                                 </a> <b class="arrow"></b>
@@ -537,7 +537,32 @@ window.jQuery || document.write("<script src='assets/js/jquery1x.min.js'>"+"<"+"
 
                 });
 
+                $("#MNU_ARTICLES").click(function (e) {
+                       $("#MNU_ARTICLES").attr("Class", "active");
+                       $("#MNU_MAREYEURS").attr("Class", "no-active");
+                       $("#MNU_BORD").attr("Class", "no-active");
+                       $("#MNU_CLIENTS").attr("Class", "no-active");
+                       $("#MNU_DEVISE").attr("Class", "no-active");
+                       $("#AJOUTER_ACHATS").attr("Class", "no-active");
+                       $("#LISTE_ACHATS").attr("Class", "no-active");
+                       $("#AJOUTER_SORTIE").attr("Class", "no-active");
+                       $("#AJOUTER_FACTURE").attr("Class", "no-active");
+                       $("#LISTE_FACTURE").attr("Class", "no-active");
+                       $("#LISTE_SORTIE").attr("Class", "no-active");
+                       $("#STOCK_REEL").attr("Class", "no-active");
+                       $("#REGLEMENT_FACTURE").attr("Class", "no-active");
+                       $("#REGLEMENT_ACHAT").attr("Class", "no-active");
+                       $("#MNU_DEMOULAGE").attr("Class", "no-active");
+                       $("#LIST_USERS").attr("Class", "no-active");
+                       $("#CONSULTATION_PRODUITS").attr("Class", "no-active");
+                       $("#CONSULTATION_ENTREES").attr("Class", "no-active");
+                       $("#MNU_DEMOULAGE_LIST").attr("Class", "no-active");
+                       $("#INVENTAIRE_FACTURE").attr("Class", "no-active");
+                       $("#MAIN_CONTENT").load("<?php echo App::getHome(); ?>/app/article/articleVue.php", function () {
+                   });
 
+                });
+                
                 $("#MNU_MAREYEURS").click(function (e) {
                 	$("#MNU_PRODUITS").attr("Class", "no-active");
                     $("#MNU_MAREYEURS").attr("Class", "active");

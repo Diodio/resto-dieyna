@@ -30,6 +30,13 @@ class ProduitQueries {
             return $produit;
         }
     }
+    public function update($produit) {
+        if ($produit != null) {
+            Bootstrap::$entityManager->merge($produit);
+            Bootstrap::$entityManager->flush();
+            return $produit;
+        }
+    }
 
     public function findById($produitId) {
         if ($produitId != null) {
@@ -57,30 +64,38 @@ class ProduitQueries {
 
    
     public function retrieveAll($offset, $rowCount, $orderBy = "", $sWhere = "") {
-//        if($sWhere !== "")
-//            $sWhere = " where " . $sWhere;
-            $sql = 'select distinct(p.id), p.libelle LibelleProduit, r.libelle libelleRubrique
-                    from produit p, rubrique r WHERE r.id=p.rubrique_id ' . $sWhere . ' group by id ' . $orderBy . ' LIMIT ' . $offset . ', ' . $rowCount.'';
+        if($sWhere !== "")
+            $sWhere = " where " . $sWhere;
+            $sql = 'select distinct(id), code , libelle
+                    from produit ' . $sWhere . ' group by id ' . $orderBy . ' LIMIT ' . $offset . ', ' . $rowCount.'';
             
         $sql = str_replace("`", "", $sql);
         $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
         $stmt->execute();
         $products = $stmt->fetchAll();
-        $arrayContact = array();
+        $arrayProduct = array();
         $i = 0;
         foreach ($products as $key => $value) {
-            $arrayContact [$i] [] = $value ['id'];
-            $arrayContact [$i] [] = $value ['id'];
-            $arrayContact [$i] [] = $value ['LibelleProduit'];
-            $arrayContact [$i] [] = $value ['libelleRubrique'];
-            $arrayContact [$i] [] = "0.00";
-            $arrayContact [$i] [] = $value ['id'];
+            $arrayProduct [$i] [] = $value ['code'];
+            $arrayProduct [$i] [] = $value ['libelle'];
+            $arrayProduct [$i] [] = $value ['id'];
             $i++;
         }
-        return $arrayContact;
+        return $arrayProduct;
     }
 
- 
+ public function findProduduitDetails($produitId) {
+        if ($produitId != null) {
+            $sql = 'SELECT id, code, libelle from produit where id=' . $produitId;
+            $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
+            $stmt->execute();
+            $produit = $stmt->fetchAll();
+            if ($produit != null)
+                return $produit;
+            else
+                return null;
+        }
+    }
   public function retrieveTypes() {
         $query = Bootstrap::$entityManager->createQuery("select t.id as value, t.libelle as text from Produit\TypeProduit t");
         $types = $query->getResult();
@@ -107,10 +122,10 @@ class ProduitQueries {
 
     
     public function count($sWhere = "") {
-//       if($sWhere !== "")
-//            $sWhere = " where " . $sWhere;
-             $sql = 'select count(p.id) as nbProduits
-                    from produit p, rubrique r where r.id=p.rubrique_id ' . $sWhere . '';
+       if($sWhere !== "")
+            $sWhere = " where " . $sWhere;
+             $sql = 'select count(id) as nbProduits
+                    from produit ' . $sWhere . '';
        
         $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
         $stmt->execute();
@@ -174,11 +189,11 @@ class ProduitQueries {
     }
    
     
-     public function findProduitsByName($name) {
-        $sql = 'SELECT id  FROM produit where ( id = "'. $name .'")';
+     public function findProduitsByCode($code) {
+        $sql = 'SELECT id  FROM produit where ( code = "'. $code .'")';
         $stmt = Bootstrap::$entityManager->getConnection()->prepare($sql);
         $stmt->execute();
-        $produit = $stmt->fetchAll();
+        $produit = $stmt->fetch();
         if ($produit != null)
             return $produit;
         else

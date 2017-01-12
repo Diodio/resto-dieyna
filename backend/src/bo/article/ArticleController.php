@@ -1,63 +1,44 @@
 <?php
 
-
 require_once '../../common/app.php';
-require_once App::AUTOLOAD;         
-$lang='fr';
+require_once App::AUTOLOAD;
+$lang = 'fr';
 
 use Article\Article as Article;
 use Article\ArticleManager as ArticleManager;
 use Bo\BaseController as BaseController;
 use Bo\BaseAction as BaseAction;
-use Produit\ProduitManager as ProduitManager;
+use Log\Loggers as Logger;
 use Exceptions\ConstraintException as ConstraintException;
 use App as App;
-                        
+
 class ArticleController extends BaseController implements BaseAction {
 
-    
     private $parameters;
-            function __construct($request) {
-       
+    private $logger;
+
+    function __construct($request) {
+        $this->logger = new Logger(__CLASS__);
         $this->parameters = parse_ini_file("../../../../lang/trad_fr.ini");
         try {
-            if(isset($request['ACTION'])) 
-                {
-                    switch ($request['ACTION']) {
-                        case \App::ACTION_INSERT:
-                                $this->doInsert($request);
-                                break;
-                        case \App::ACTION_UPDATE:
-                                $this->doUpdate($request);
-                                break;
-                        case \App::ACTION_VIEW:
-                                $this->doView($request);
-                                break;
-                        case \App::ACTION_LIST:
-                                $this->doList($request);
-                                break;
-                        case \App::ACTION_REMOVE:
-                                $this->doRemove($request);
-                                break;
-                        case \App::ACTION_REVOKE:
-                                $this->doRevoke($request);
-                                break;
-                        case \App::ACTION_IMPORT:
-                                $this->doImport($request);
-                            	break;
-                        case \App::ACTION_EXPORT:
-                                $this->doExport($request);
-                        	break;
-                        case \App::ACTION_SEARCH:
-                                $this->doSearch($request);
-                                break;
-                        case \App::ACTION_COUNT_RECIPIENTS:
-                                $this->doGetNbContacts($request);
-                                break;
-                        case \App::ACTION_DELETE_CONTACTADD:
-                                $this->doDeleteContactAdd($request);
-                                break;
-                    }
+            if (isset($request['ACTION'])) {
+                switch ($request['ACTION']) {
+                    case \App::ACTION_INSERT:
+                        $this->doInsert($request);
+                        break;
+                    case \App::ACTION_UPDATE:
+                        $this->doUpdate($request);
+                        break;
+                    case \App::ACTION_VIEW:
+                        $this->doView($request);
+                        break;
+                    case \App::ACTION_LIST:
+                        $this->doList($request);
+                        break;
+                    case \App::ACTION_REMOVE:
+                        $this->doRemove($request);
+                        break;
+                }
             } else {
                 throw new Exception($this->parameters['NO_ACTION']);
             }
@@ -68,27 +49,40 @@ class ArticleController extends BaseController implements BaseAction {
 
     public function doInsert($request) {
         try {
-                $produit = new Produit();
-                $produitManager = new ProduitManager();
-                    $produit->setLibelle($request['libelle']);
-                    $produit->setQuantite($request['quantite']);
-                    $produit->setPrixUnitaire($request['prixUnitaire']);
-                    $produit->setSeuil($request['seuil']);
-                    $produitAdded = $produitManager->insert($produit);
-                    if ($produitAdded->getId() != null) {
-                        $this->doSuccess($produitAdded->getId(), 'Produit enregistré avec succes');
-                     
+            $article = new Article();
+            $articleManager = new ArticleManager();
+            $rubriqueManager = new Rubrique\RubriqueManager();
+            if ($request['rubriqueId'] != '') {
+                $rubrique = $rubriqueManager->findById($request['rubriqueId']);
+                if ($rubrique != NULL) {
+                    $isExist=$articleManager->isExist($request['rubriqueId'],$request['libelle']);
+                    if($isExist==NULL){
+                    $article->setRubrique($rubrique);
+                    $article->setLibelle($request['libelle']);
+                    $article->setLogin($request['login']);
+                    $articleAdded = $articleManager->insert($article);
+                    if ($articleAdded->getId() != null) {
+                        $this->doSuccess($articleAdded->getId(), 'Article enregistré avec succes');
+                    } else {
+                        $this->doError('-1', 'impossible d\'inserer cet article');
+                    }
+                    }
+                    else{
+                        $this->doError('-1', 'Cet article existe déja');
+                    }
                 } else {
-                    throw new Exception('impossible d\'inserer ce produit');
+                    $this->doError('-1', 'Veuillez choisir une rubrique SVP.');
                 }
-            
+            } else {    
+                $this->doError('-1', 'impossible d\'inserer cet article');
+            }
         } catch (Exception $e) {
-            throw new Exception('ERREUR SERVEUR');
+            throw new Exception('Erreur lors du traitement de votre requete');
         }
     }
 
     public function doUpdate($request) {
-      
+        
     }
 
     public function doList($request) {
@@ -97,7 +91,7 @@ class ArticleController extends BaseController implements BaseAction {
             if (isset($request['iDisplayStart']) && isset($request['iDisplayLength'])) {
                 // Begin order from dataTable
                 $sOrder = "";
-                $aColumns = array('libelle', 'prixUnitaire');
+                $aColumns = array('a.libelle', 'r.libelle');
                 if (isset($request['iSortCol_0'])) {
                     $sOrder = "ORDER BY  ";
                     for ($i = 0; $i < intval($request['iSortingCols']); $i++) {
@@ -118,25 +112,25 @@ class ArticleController extends BaseController implements BaseAction {
                 if (isset($request['sSearch']) && $request['sSearch'] != "") {
                     $sSearchs = explode(" ", $request['sSearch']);
                     for ($j = 0; $j < count($sSearchs); $j++) {
-                        $sWhere .= " ";
+                        $sWhere .= " AND (";
                         for ($i = 0; $i < count($aColumns); $i++) {
                             $sWhere .= "(" . $aColumns[$i] . " LIKE '%" . $sSearchs[$j] . "%') OR";
                             if ($i == count($aColumns) - 1)
                                 $sWhere = substr_replace($sWhere, "", -3);
                         }
-                       // $sWhere = $sWhere .=")";
+                        $sWhere = $sWhere .=")";
                     }
                 }
                 // End filter from dataTable
                 $produits = $articleManager->retrieveAll($request['iDisplayStart'], $request['iDisplayLength'], $sOrder, $sWhere);
                 if ($produits != null) {
-                    $nbProduits = $articleManager->count($sWhere);
-                    $this->doSuccessO($this->dataTableFormat($produits, $request['sEcho'], $nbProduits));
+                    $nbArticles = $articleManager->count($sWhere);
+                    $this->doSuccessO($this->dataTableFormat($produits, $request['sEcho'], $nbArticles));
                 } else {
                     $this->doSuccessO($this->dataTableFormat(array(), $request['sEcho'], 0));
                 }
             } else {
-                 throw new Exception('list failed');
+                throw new Exception('list failed');
             }
         } catch (Exception $e) {
             throw $e;
@@ -146,25 +140,25 @@ class ArticleController extends BaseController implements BaseAction {
     }
 
     public function doRemove($request) {
-        $this->logger->log->info('Action Remove contact');
+        $this->logger->log->info('Action Remove article');
         $this->logger->log->info(json_encode($request));
         try {
-            if (isset($request['contactIds'])) {
-                $this->logger->log->info('Remove with params : ' . $request['contactIds']);
-                $contactId = $request['contactIds'];
-                $contactManager = new ContactManager();
-                $nbModified = $contactManager->remove($contactId);
-                $this->doSuccess($nbModified, $this->parameters['REMOVED']);
+            if (isset($request['articleIds'])) {
+                $this->logger->log->info('Remove with params : ' . $request['articleIds']);
+                $articleIds = $request['articleIds'];
+                $articleManager = new ArticleManager();
+                $nbModified = $articleManager->delete($articleIds);
+                if ($nbModified != NULL)
+                    $this->doSuccess($nbModified, $this->parameters['REMOVED']);
+                else
+                    $this->doError('-1', 'Impossible de supprimer cet article');
             } else {
                 $this->logger->log->trace('Remove : Params not enough');
-                $this->doError('-1', $this->parameters['CONTACT_NOT_REMOVED']);
+                throw new Exception('Paramètres insuffisants');
             }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw $e;
         } catch (Exception $e) {
             $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
+            throw new Exception('Erreur lors du traitement de votre requette');
         }
     }
 
@@ -197,64 +191,6 @@ class ArticleController extends BaseController implements BaseAction {
         }
     }
 
-    public function doRevoke($request) {
-        $this->logger->log->info('Action revoke contact');
-        $this->logger->log->info(json_encode($request));
-        try {
-            if (isset($request['userId']) && isset($request['groupId']) && isset($request['contactIds'])) {
-                $this->logger->log->info('Revoke with params groupId: ' . $request['groupId'] . ' AND contactIds ' . $request['contactIds']);
-                if ($request['groupId'] != "*") {
-                    $groupId = $request['groupId'];
-                    $contactIds = $request['contactIds'];
-                    $contactManager = new ContactManager();
-                    $nbModified = $contactManager->revokeContact($groupId, $contactIds);
-                    $this->doSuccess($nbModified, $this->parameters['REVOKED']);
-                } else {
-                    $this->logger->log->trace('Cette opération est impossible pour ce groupe');
-                    throw new ConstraintException($this->parameters['OPERATION_IMPOSSIBLE']);
-                }
-            } else {
-                $this->logger->log->trace('Revoke : Params not enough');
-            }
-        } catch (ConstraintException $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw $e;
-        } catch (Exception $e) {
-            $this->logger->log->trace($e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
-        }
-    }
-
-    
-
-    public function doSearch($request) {
-        try {
-            if (isset($request['term'])) {
-                $produitManager = new ProduitManager ();
-                $term = trim(strip_tags($request['term']));
-                $produits = $produitManager->findAllProduits($term);
-                if ($produits != null)
-                    $this->doSuccessO($this->listObjectToArray($produits));
-                else
-                    echo json_encode(array());
-            }
-            else {
-                throw new ConstraintException($this->parameters['PARAM_NOT_ENOUGH']);
-            }
-        } catch (ConstraintException $e) {
-            throw $e;
-        } catch (Exception $e) {
-            throw new Exception($this->parameters['ERREUR_SERVEUR']);
-        }
-    }
-
-   
- 
-
-   
-
-    
-
 }
 
-        $oArticleController = new ArticleController($_REQUEST);
+$oArticleController = new ArticleController($_REQUEST);

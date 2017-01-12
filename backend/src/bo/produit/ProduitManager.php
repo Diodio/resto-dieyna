@@ -31,14 +31,17 @@ class ProduitManager {
 	//TODO:test pour savoir si customer donn� est null ou pas?
     /**
      * Mettre à jour le contact et les champs additionnels
-     * @param Contact $contact l'object contact 
+     * @param Contact $product l'object contact 
      * @param String $addChamp la liste des champs additionnels sous la forme IdChamp1, CodeCateg1, libelleChamp1, valeurChamp1|IdChamp2, CodeCateg2, libelleChamp2, valeurChamp2...
      * Idchamp = 0 si c'est une insertion
      */
-    public function update($contact, $addChamp = null) {
-       
+    public function update($product) {
+       return $this->produitQuery->update($product);
     }
 
+    public function findById($produitId) {
+        return $this->produitQuery->findById($produitId);
+    }
  
     public function delete($produitId) {
         return $this->produitQuery->delete($produitId);
@@ -59,6 +62,17 @@ class ProduitManager {
     public function retrieveAll($offset, $rowCount, $sOrder = "", $sWhere = "") {
         return $this->produitQuery->retrieveAll($offset, $rowCount, $sOrder, $sWhere);
     }
+    
+    public function findProduduitDetails($produitId) {
+        $produit = $this->produitQuery->findProduduitDetails($produitId);
+        $produitDetail = array();
+        foreach ($produit as $key => $value) {
+            $produitDetail ['code'] = $value ['code'];
+            $produitDetail ['libelle'] = $value ['libelle'];
+        }
+        return $produitDetail;
+    }
+    
 public function retrieveTypes()
     {
         return $this->produitQuery->retrieveTypes();
@@ -80,8 +94,8 @@ public function retrieveTypes()
             return $this->produitQuery->findAllProduits($term);
     }
 
-    public function findProduitsByName($name){
-        return $this->produitQuery->findProduitsByName($name);
+    public function findProduitsByCode($code){
+        return $this->produitQuery->findProduitsByCode($code);
     }
 
 }

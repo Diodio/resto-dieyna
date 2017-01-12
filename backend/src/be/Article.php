@@ -11,10 +11,10 @@
  * ----------------------------------------
  */
 
-namespace Rubrique;
+namespace Article;
 
 /** @Entity @HasLifecycleCallbacks 
- * @Table(name="article") * */
+ * @Table(name="article", uniqueConstraints={@UniqueConstraint(name="article_idx", columns={"rubrique_id", "libelle"})}) * */
 class Article {
 
     /** @Id
@@ -29,15 +29,15 @@ class Article {
     protected $libelle;
     
     /**
-     *  @ManyToOne(targetEntity="Rubrique\Article", inversedBy="rubrique") 
+     *  @ManyToOne(targetEntity="Rubrique\Rubrique", inversedBy="rubrique") 
      * @JoinColumn(name="rubrique_id", referencedColumnName="id",
       onDelete="CASCADE") */
     protected $rubrique;
     
-     /**
-     * @Column(type="decimal", scale=2, precision=10,nullable=false)
+    /**
+     * @Column(type="string", length=60, nullable=false)
      * */
-    protected $prixUnitaire;
+    protected $login;
     
     /** @Column(type="datetime", nullable=true) */
     public $createdDate;
@@ -54,20 +54,12 @@ class Article {
         return $this->id;
     }
 
-    function getCode() {
-        return $this->code;
-    }
-
     function getLibelle() {
         return $this->libelle;
     }
 
-    function getPrixUnitaire() {
-        return $this->prixUnitaire;
-    }
-
-    function getQuantite() {
-        return $this->quantite;
+    function getRubrique() {
+        return $this->rubrique;
     }
 
     function getCreatedDate() {
@@ -82,28 +74,16 @@ class Article {
         return $this->deletedDate;
     }
 
-    function getRubrique() {
-        return $this->rubrique;
-    }
-
     function setId($id) {
         $this->id = $id;
-    }
-
-    function setCode($code) {
-        $this->code = $code;
     }
 
     function setLibelle($libelle) {
         $this->libelle = $libelle;
     }
 
-    function setPrixUnitaire($prixUnitaire) {
-        $this->prixUnitaire = $prixUnitaire;
-    }
-
-    function setQuantite($quantite) {
-        $this->quantite = $quantite;
+    function setRubrique($rubrique) {
+        $this->rubrique = $rubrique;
     }
 
     function setCreatedDate($createdDate) {
@@ -117,11 +97,15 @@ class Article {
     function setDeletedDate($deletedDate) {
         $this->deletedDate = $deletedDate;
     }
-
-    function setRubrique($rubrique) {
-        $this->rubrique = $rubrique;
+    function getLogin() {
+        return $this->login;
     }
 
+    function setLogin($login) {
+        $this->login = $login;
+    }
+
+        
     /** @PrePersist */
     public function doPrePersist() {
         date_default_timezone_set('GMT');

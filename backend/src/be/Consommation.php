@@ -25,8 +25,8 @@ class Consommation {
      * */
     protected $quantite;
     
-    /** @ManyToOne(targetEntity="Rubrique\Article", inversedBy="article", cascade={"persist"}) */
-    protected $article;
+    /** @ManyToOne(targetEntity="Rubrique\Rubrique", inversedBy="rubrique", cascade={"persist"}) */
+    protected $rubrique;
     
     /** @ManyToOne(targetEntity="Produit\Produit", inversedBy="produit", cascade={"persist"}) */
     protected $produit;

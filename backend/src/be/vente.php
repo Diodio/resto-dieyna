@@ -31,8 +31,8 @@ class Vente {
     /** @Column(type="datetime", nullable=true) */
     protected $deletedDate;
     
-    /** @OneToMany(targetEntity="Rubrique\Article", mappedBy="article") */
-    public $article;
+    /** @OneToMany(targetEntity="Rubrique\Rubrique", mappedBy="rubrique") */
+    public $rubrique;
     
     function getId() {
         return $this->id;

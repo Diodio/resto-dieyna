@@ -40,8 +40,8 @@ class ArticleManager {
     }
 
  
-    public function delete($clientId) {
-        return $this->articleQuery->delete($clientId);
+    public function delete($articleId) {
+        return $this->articleQuery->delete($articleId);
     }
 
    
@@ -79,6 +79,11 @@ public function retrieveTypes()
     public function findAllProduits($term){
             return $this->articleQuery->findAllProduits($term);
     }
+
+    
+        public function isExist($rubriqueId, $libelle) {
+            return $this->articleQuery->isExist($rubriqueId, $libelle);
+        }
 
     
 }

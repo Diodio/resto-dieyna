@@ -24,10 +24,10 @@ class LigneVente {
    
 
     /**
-     *  @ManyToOne(targetEntity="Rubrique\Article", inversedBy="article") 
-     * @JoinColumn(name="article_id", referencedColumnName="id",
+     *  @ManyToOne(targetEntity="Rubrique\Rubrique", inversedBy="rubrique") 
+     * @JoinColumn(name="rubrique_id", referencedColumnName="id",
       onDelete="CASCADE") */
-    protected $article;
+    protected $rubrique;
 
     /** @ManyToOne(targetEntity="Vente\Vente", inversedBy="vente") 
      * @JoinColumn(name="vente_id", referencedColumnName="id",
